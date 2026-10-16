@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Agent 使用报告 · pb（动态站）</title>
+<meta name="author" content="pb" />
+<meta name="description" content="人工智能概论课程作业：AI Agent 使用报告。数据库驱动的动态网页，实时同步、在线编辑、留言与点赞。" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+<style>
+/* ============================================================
+   AI Agent 使用报告 · 动态站样式
+   想整体换配色：只改下面 :root 的变量
+   ============================================================ */
+:root{
+  --bg:#f5f7fb; --bg-soft:#eef1f8;
+  --surface:#fff; --surface-2:#fafbfe;
+  --text:#151922; --text-soft:#4b5566; --muted:#78839a;
+  --border:#e3e8f2; --border-strong:#d2d9e8;
+  --accent:#4f5bd5; --accent-2:#7c5cff; --accent-3:#12a5a5;
+  --accent-soft:rgba(79,91,213,.09);
+  --grad:linear-gradient(135deg,#4f5bd5 0%,#7c5cff 48%,#12a5a5 100%);
+  --ok:#0f9d70; --warn:#c98a00; --danger:#d94b57;
+  --radius:16px; --radius-sm:10px; --maxw:1180px;
+  --shadow:0 1px 2px rgba(20,25,40,.04), 0 10px 30px rgba(20,25,40,.06);
+  --shadow-hover:0 2px 6px rgba(20,25,40,.06), 0 18px 44px rgba(20,25,40,.12);
+  --mono:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+html[data-theme="dark"]{
+  --bg:#0d1017; --bg-soft:#0a0d13;
+  --surface:#141922; --surface-2:#171d28;
+  --text:#e9eef7; --text-soft:#b3bece; --muted:#8592a6;
+  --border:#242c3a; --border-strong:#303a4c;
+  --accent:#8a93ff; --accent-2:#a98bff; --accent-3:#3ad0cf;
+  --accent-soft:rgba(138,147,255,.13);
+  --grad:linear-gradient(135deg,#6c74ff 0%,#a98bff 48%,#2fc4c3 100%);
+  --ok:#3ecf9a; --warn:#e0b34a; --danger:#f0808c;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 34px rgba(0,0,0,.35);
+  --shadow-hover:0 2px 8px rgba(0,0,0,.4), 0 20px 50px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{
+  margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+  font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  transition:background .3s ease,color .3s ease;
+}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid transparent}
+a:hover{border-bottom-color:currentColor}
+h1,h2,h3,h4{line-height:1.35; margin:0 0 .5em; font-weight:700; letter-spacing:-.01em}
+h2{font-size:1.55rem} h3{font-size:1.12rem}
+p{margin:0 0 1em}
+ul,ol{margin:0 0 1em; padding-left:1.35em}
+li{margin:.3em 0}
+code{font-family:var(--mono); font-size:.87em; background:var(--accent-soft); color:var(--accent); padding:.12em .42em; border-radius:6px}
+pre{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; overflow:auto; font-size:.85rem; line-height:1.6; margin:0 0 1.1em}
+pre code{background:none; color:var(--text-soft); padding:0; white-space:pre-wrap}
+.muted{color:var(--muted); font-size:.85rem}
+sup a{font-size:.8em}
+
+/* ============ 顶栏 ============ */
+#progressBar{position:fixed; top:0; left:0; height:3px; width:0; background:var(--grad); z-index:60; transition:width .1s linear}
+.topbar{position:sticky; top:0; z-index:50; backdrop-filter:saturate(180%) blur(12px); background:color-mix(in srgb,var(--bg) 82%,transparent); border-bottom:1px solid var(--border)}
+.topbar-in{max-width:var(--maxw); margin:0 auto; padding:9px 20px; display:flex; align-items:center; gap:14px}
+.brand{display:flex; align-items:center; gap:9px; font-weight:700; font-size:.94rem; white-space:nowrap}
+.brand .dot{width:9px; height:9px; border-radius:50%; background:var(--grad); box-shadow:0 0 0 4px var(--accent-soft)}
+.brand small{font-weight:500; color:var(--muted); font-size:.78rem}
+.live-pill{display:inline-flex; align-items:center; gap:6px; font-size:.72rem; font-weight:600; color:var(--muted); background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:2px 9px}
+.live-pill i{width:7px; height:7px; border-radius:50%; background:var(--muted); display:inline-block}
+.live-pill.on{color:var(--ok); border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.live-pill.on i{background:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent); animation:pulse 2s infinite}
+.live-pill.off{color:var(--danger); border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+.live-pill.off i{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.topbar nav{margin-left:auto; display:flex; gap:2px; flex-wrap:wrap; justify-content:flex-end}
+.topbar nav a{font-size:.82rem; color:var(--text-soft); padding:6px 10px; border-radius:8px; border-bottom:none}
+.topbar nav a:hover{background:var(--accent-soft); color:var(--accent)}
+.actions{display:flex; gap:8px; align-items:center}
+.btn{
+  font:inherit; font-size:.82rem; cursor:pointer; user-select:none;
+  background:var(--surface); color:var(--text-soft); border:1px solid var(--border-strong); border-radius:999px;
+  padding:7px 13px; display:inline-flex; align-items:center; gap:6px; transition:all .16s ease; white-space:nowrap;
+}
+.btn:hover{color:var(--accent); border-color:var(--accent); transform:translateY(-1px); box-shadow:var(--shadow)}
+.btn:disabled{opacity:.5; cursor:not-allowed; transform:none}
+.btn.primary{background:var(--grad); color:#fff; border-color:transparent}
+.btn.primary:hover{color:#fff; box-shadow:var(--shadow-hover)}
+.btn.wide{width:100%; justify-content:center; margin-top:10px}
+.btn.danger{color:var(--danger); border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+.btn[aria-pressed="true"]{background:var(--accent); color:#fff; border-color:transparent}
+
+/* ============ 布局 ============ */
+.wrap-top,.wrap-bottom{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0}
+.wrap-bottom{padding-bottom:60px}
+.layout{max-width:var(--maxw); margin:0 auto; padding:22px 20px 40px; display:grid; grid-template-columns:230px 1fr; gap:30px; align-items:start}
+.toc{position:sticky; top:78px; font-size:.85rem}
+.toc h4{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+.toc ol{list-style:none; margin:0; padding:0; border-left:2px solid var(--border)}
+.toc li a{display:block; padding:5px 0 5px 12px; margin-left:-2px; border-left:2px solid transparent; color:var(--text-soft); font-size:.83rem; line-height:1.45; border-bottom:none}
+.toc li a:hover{color:var(--accent)}
+.toc li a.is-active{color:var(--accent); border-left-color:var(--accent); font-weight:600}
+.toc-note{margin-top:16px; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--muted); font-size:.75rem; line-height:1.65}
+.toc-note b{color:var(--text-soft)}
+
+/* ============ 封面 ============ */
+.hero{
+  position:relative; overflow:hidden; border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow);
+  background:radial-gradient(760px 340px at 8% -10%,var(--accent-soft),transparent 60%),
+             radial-gradient(620px 320px at 92% 0%,rgba(18,165,165,.10),transparent 62%),var(--surface);
+  padding:42px 38px 36px; margin-bottom:18px;
+}
+.hero::after{content:""; position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(500px 260px at 78% 12%,#000,transparent 72%);
+  -webkit-mask-image:radial-gradient(500px 260px at 78% 12%,#000,transparent 72%);}
+.hero>*{position:relative; z-index:1}
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.75rem; letter-spacing:.06em; color:var(--accent);
+  background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);
+  padding:5px 12px; border-radius:999px; margin-bottom:14px; font-weight:600}
+.hero h1{font-size:clamp(1.9rem,4.4vw,2.9rem); margin-bottom:12px; letter-spacing:-.02em}
+.hero h1 em{font-style:normal; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero .lead{font-size:1rem; color:var(--text-soft); max-width:68ch; margin-bottom:20px}
+.chips{display:flex; flex-wrap:wrap; gap:9px; margin-bottom:20px}
+.chip{font-size:.78rem; color:var(--text-soft); background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:5px 12px}
+.chip b{color:var(--text); font-weight:600}
+.hero-actions{display:flex; flex-wrap:wrap; gap:10px}
+.hero-actions .btn{padding:9px 16px}
+.hero-actions b{font-variant-numeric:tabular-nums}
+
+/* ============ 实时看板 ============ */
+.liveboard{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 22px 16px; margin-bottom:22px}
+.liveboard-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+.liveboard-head h3{margin:0; font-size:1rem}
+.live-hint{font-size:.75rem; color:var(--muted)}
+.live-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+.live-cell{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 10px; text-align:center; transition:transform .2s ease}
+.live-cell.bump{transform:scale(1.05)}
+.live-cell .lv{display:block; font-size:1.45rem; font-weight:800; line-height:1.25; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; font-variant-numeric:tabular-nums}
+.live-cell .lk{font-size:.74rem; color:var(--muted)}
+.live-cell.chart-cell{grid-column:span 1; padding-bottom:6px}
+#visitChart{width:100%; height:52px; display:block}
+#visitChart rect{fill:var(--accent); opacity:.85}
+#visitChart rect:last-child{opacity:1}
+
+/* ============ 卡片与内容 ============ */
+section.card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px 30px 22px; margin-bottom:20px; box-shadow:var(--shadow); scroll-margin-top:90px}
+section.card>h2{display:flex; align-items:baseline; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:18px}
+.num{flex:none; font-family:var(--mono); font-size:.78rem; font-weight:700; color:#fff; background:var(--grad); min-width:30px; height:30px; padding:0 7px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; translate:0 -2px}
+.sec-summary{color:var(--muted); font-size:.88rem; margin:-8px 0 18px}
+.sec-tools{display:flex; gap:8px; margin-left:auto; align-items:center}
+.sec-tools .btn{padding:4px 10px; font-size:.75rem}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.tile{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px}
+.tile h4{margin:0 0 6px; font-size:.94rem}
+.tile p{margin:0; font-size:.87rem; color:var(--text-soft)}
+
+.table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:1.2em}
+table{width:100%; border-collapse:collapse; font-size:.87rem; min-width:520px}
+th,td{text-align:left; padding:11px 13px; border-bottom:1px solid var(--border); vertical-align:top}
+th{background:var(--surface-2); font-size:.78rem; letter-spacing:.04em; color:var(--text-soft); text-transform:uppercase; font-weight:700}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+
+.tag{display:inline-block; font-size:.72rem; padding:2px 9px; border-radius:999px; font-weight:600; white-space:nowrap; line-height:1.7}
+.tag.used{background:rgba(15,157,112,.13); color:var(--ok)}
+.tag.opt{background:rgba(201,138,0,.15); color:var(--warn)}
+.tag.todo{background:var(--accent-soft); color:var(--accent)}
+
+.callout{border:1px solid var(--border); border-left:4px solid var(--accent); background:var(--surface-2); border-radius:var(--radius-sm); padding:14px 17px; margin:0 0 1.2em; font-size:.88rem}
+.callout .ct{font-weight:700; display:block; margin-bottom:4px}
+.callout.warn{border-left-color:var(--warn)}
+.callout.ok{border-left-color:var(--ok)}
+.callout.edit{border-left-color:var(--accent-2); background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.callout:last-child{margin-bottom:.4em}
+
+.flow{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 1.4em}
+.flow .step{flex:1 1 150px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 13px}
+.flow .step b{display:block; font-size:.84rem; margin-bottom:3px}
+.flow .step span{font-size:.76rem; color:var(--muted); line-height:1.6}
+.flow .arrow{flex:none; align-self:center; color:var(--muted)}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin:0 0 1.4em}
+.stat{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; text-align:center}
+.stat .v{font-size:1.45rem; font-weight:800; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.stat .k{font-size:.75rem; color:var(--muted)}
+
+.timeline{position:relative; margin:0 0 1.2em; padding-left:26px}
+.timeline::before{content:""; position:absolute; left:7px; top:6px; bottom:6px; width:2px; background:linear-gradient(var(--accent),var(--accent-3))}
+.tl{position:relative; margin-bottom:18px}
+.tl::before{content:""; position:absolute; left:-24px; top:8px; width:12px; height:12px; border-radius:50%; background:var(--surface); border:3px solid var(--accent)}
+.tl h4{margin:0 0 4px; font-size:.95rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.tl .stage-tag{font-family:var(--mono); font-size:.7rem; color:var(--accent); background:var(--accent-soft); padding:1px 7px; border-radius:6px}
+.tl p{font-size:.87rem; color:var(--text-soft); margin:0 0 5px}
+.tl .me{font-size:.83rem; color:var(--muted)}
+
+/* ============ 留言板 ============ */
+.comment-form{display:grid; gap:10px; margin-bottom:22px}
+.comment-form input,.comment-form textarea,.modal-box input,.edit-area{
+  font:inherit; font-size:.88rem; color:var(--text); background:var(--surface-2);
+  border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:10px 12px; width:100%; resize:vertical;
+}
+.comment-form input:focus,.comment-form textarea:focus,.modal-box input:focus,.edit-area:focus{outline:2px solid var(--accent); outline-offset:0; border-color:transparent}
+.form-foot{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+.comment-list{display:grid; gap:10px}
+.comment{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; position:relative; animation:pop .3s ease}
+@keyframes pop{from{opacity:0; transform:translateY(-6px)}to{opacity:1; transform:none}}
+.comment .c-head{display:flex; align-items:center; gap:9px; margin-bottom:5px; flex-wrap:wrap}
+.comment .c-author{font-weight:700; font-size:.87rem}
+.comment .c-time{font-size:.74rem; color:var(--muted)}
+.comment .c-body{font-size:.88rem; color:var(--text-soft); white-space:pre-wrap; word-break:break-word}
+.comment .c-del{position:absolute; right:10px; top:10px; font-size:.72rem; color:var(--danger); background:none; border:none; cursor:pointer; padding:2px 6px}
+.foot{display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; font-size:.8rem; color:var(--muted); padding-top:26px; border-top:1px solid var(--border); margin-top:24px}
+
+/* ============ 编辑态 ============ */
+body.editing [data-editable]{outline:1px dashed color-mix(in srgb,var(--accent) 45%,transparent); outline-offset:3px; border-radius:4px}
+.tools-edit-row{display:flex; gap:6px; align-items:center}
+.tools-edit-row input,.tools-edit-row select{font:inherit; font-size:.8rem; padding:5px 7px; background:var(--surface); color:var(--text); border:1px solid var(--border-strong); border-radius:7px; width:100%}
+.edit-area{min-height:70px; font-size:.86rem; line-height:1.7}
+.edit-block{margin-bottom:10px}
+.edit-actions{display:flex; gap:8px; margin:12px 0 4px; flex-wrap:wrap}
+.badge-dirty{font-size:.72rem; color:var(--warn); font-weight:600}
+.editbar{
+  position:fixed; left:50%; bottom:18px; translate:-50% 140%; z-index:70; display:flex; gap:8px; align-items:center;
+  flex-wrap:wrap; justify-content:center; background:var(--surface); border:1px solid var(--border-strong);
+  border-radius:999px; padding:9px 14px; box-shadow:var(--shadow-hover); opacity:0; pointer-events:none;
+  transition:translate .28s cubic-bezier(.2,.8,.3,1),opacity .22s ease; max-width:calc(100vw - 24px);
+}
+body.editing .editbar{translate:-50% 0; opacity:1; pointer-events:auto}
+.editbar .hint{font-size:.76rem; color:var(--muted); padding:0 6px}
+
+/* ============ 弹窗 / 提示 ============ */
+.modal{position:fixed; inset:0; z-index:90; background:rgba(10,13,20,.55); display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(3px)}
+.modal[hidden]{display:none}
+.modal-box{background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius); padding:24px; width:100%; max-width:420px; box-shadow:var(--shadow-hover)}
+.modal-box.wide{max-width:640px; max-height:86vh; overflow:auto}
+.modal-box h3{margin-bottom:8px}
+.modal-err{color:var(--danger); font-size:.82rem; margin:8px 0 0}
+.modal-foot{display:flex; gap:10px; justify-content:flex-end; margin-top:16px}
+.meta-form{display:grid; grid-template-columns:130px 1fr; gap:10px 12px; align-items:center; margin:14px 0 4px}
+.meta-form label{font-size:.83rem; color:var(--text-soft)}
+.meta-form input{width:100%}
+.toast{position:fixed; left:50%; top:74px; translate:-50% -20px; z-index:95; background:var(--text); color:var(--bg); font-size:.83rem; padding:9px 16px; border-radius:999px; opacity:0; pointer-events:none; transition:all .25s ease; box-shadow:var(--shadow-hover); max-width:90vw; text-align:center}
+.toast.show{opacity:1; translate:-50% 0}
+.toast.action{pointer-events:auto; cursor:pointer}
+#toTop{position:fixed; right:18px; bottom:18px; z-index:65; display:none; width:42px; height:42px; border-radius:50%; align-items:center; justify-content:center}
+body.scrolled #toTop{display:inline-flex}
+body.editing #toTop{bottom:86px}
+
+/* ============ 静态部署横幅 ============ */
+.static-banner{
+  max-width:var(--maxw); margin:0 auto; padding:14px 20px 0;
+}
+.static-banner .sb-in{
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--warn) 14%,transparent),transparent 75%),var(--surface);
+  border:1px solid var(--border-strong); border-left:4px solid var(--warn);
+  border-radius:var(--radius-sm); padding:12px 16px; box-shadow:var(--shadow); font-size:.85rem; color:var(--text-soft);
+}
+.static-banner b{color:var(--text)}
+.static-banner .sb-actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto}
+.static-banner .btn{padding:5px 11px; font-size:.78rem}
+
+/* ============ 骨架屏 ============ */
+.skeleton{padding:26px 30px}
+.sk-line{height:14px; border-radius:8px; margin-bottom:14px; background:linear-gradient(90deg,var(--surface-2),var(--border),var(--surface-2)); background-size:200% 100%; animation:sk 1.3s infinite}
+.sk-line.w40{width:40%} .sk-line.w60{width:60%} .sk-line.w80{width:80%} .sk-line.w90{width:90%}
+@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ============ 响应式 ============ */
+@media (max-width:1040px){
+  .layout{grid-template-columns:1fr; gap:18px}
+  .toc{position:static; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); padding:16px}
+  .toc ol{border-left:none; columns:2; column-gap:20px}
+  .toc li a{padding-left:0}
+  .live-grid{grid-template-columns:repeat(3,1fr)}
+  .topbar nav{display:none}
+}
+@media (max-width:640px){
+  .hero{padding:28px 18px 24px; border-radius:18px}
+  section.card{padding:20px 16px 16px}
+  .grid-2{grid-template-columns:1fr}
+  .live-grid{grid-template-columns:repeat(2,1fr)}
+  .brand small{display:none}
+  .toc ol{columns:1}
+  .lbl{display:none}
+  .meta-form{grid-template-columns:1fr}
+}
+
+/* ============ 打印 ============ */
+@media print{
+  :root{--bg:#fff; --surface:#fff; --surface-2:#fff; --text:#000; --text-soft:#222; --muted:#555; --border:#bbb}
+  html[data-theme="dark"]{--bg:#fff; --surface:#fff; --surface-2:#fff; --text:#000; --text-soft:#222; --muted:#555; --border:#bbb}
+  body{font-size:11.5pt; background:#fff}
+  .topbar,.toc,.editbar,.toast,#toTop,#progressBar,.hero-actions,.comment-form,.live-hint,.foot,.sk-line{display:none !important}
+  .layout{display:block; padding:0; max-width:none}
+  .wrap-top,.wrap-bottom{max-width:none; padding:0}
+  section.card,.hero,.liveboard{box-shadow:none; border-radius:0; border:none; border-top:1px solid #bbb; padding:14px 0; margin-bottom:0; break-inside:avoid}
+  .hero{border-top:none}
+  .hero::after{display:none}
+  h2,h3{break-after:avoid}
+  table,.tile,.tl,.flow,.callout,.comment{break-inside:avoid}
+  a{color:#000}
+}
+
+</style>
+</head>
+<body>
+<div id="progressBar"></div>
+
+<!-- ================= 顶栏 ================= -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="dot"></span>
+      <span id="brandTitle">AI Agent 使用报告</span>
+      <small id="brandAuthor">· pb</small>
+      <span class="live-pill" id="livePill" title="与服务端的实时连接状态">
+        <i></i><span id="liveText">连接中</span>
+      </span>
+    </div>
+    <nav id="topNav"></nav>
+    <div class="actions">
+      <button class="btn" id="btnTheme" title="切换深色 / 浅色">🌗<span class="lbl">主题</span></button>
+      <button class="btn" id="btnPrint" title="打印或另存为 PDF">🖨️<span class="lbl">打印/PDF</span></button>
+      <button class="btn primary" id="btnEdit" aria-pressed="false" title="需要编辑口令">✏️<span class="lbl">编辑模式</span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 封面 ================= -->
+  <div class="wrap-top">
+    <section class="hero">
+      <div class="eyebrow" id="heroEyebrow">人工智能概论 · 课程作业 · 动态网页</div>
+      <h1 id="heroTitle">AI Agent <em>使用报告</em></h1>
+      <p class="lead" id="heroLead">正在从服务端读取数据…</p>
+      <div class="chips" id="heroChips"></div>
+      <div class="hero-actions">
+        <a class="btn primary" href="#s0">📖 开始阅读</a>
+        <button class="btn" id="btnLike">👍 点赞 <b id="likeCount">0</b></button>
+        <a class="btn" href="#comments">💬 留言 <b id="commentCount">0</b></a>
+        <button class="btn" id="btnEdit2">✏️ 在线编辑</button>
+      </div>
+    </section>
+
+    <!-- ================= 实时数据面板 ================= -->
+    <section class="liveboard">
+      <div class="liveboard-head">
+        <h3>📡 本站实时数据</h3>
+        <span class="live-hint">数据来自服务端 SQLite，SSE 推送更新 —— 打开两个窗口，在一边留言，另一边会自己冒出来</span>
+      </div>
+      <div class="live-grid">
+        <div class="live-cell"><span class="lv" id="lvVisits">–</span><span class="lk">总访问量</span></div>
+        <div class="live-cell"><span class="lv" id="lvToday">–</span><span class="lk">今日访问</span></div>
+        <div class="live-cell"><span class="lv" id="lvLikes">–</span><span class="lk">点赞</span></div>
+        <div class="live-cell"><span class="lv" id="lvComments">–</span><span class="lk">留言</span></div>
+        <div class="live-cell"><span class="lv" id="lvSections">–</span><span class="lk">章节数</span></div>
+        <div class="live-cell chart-cell">
+          <svg id="visitChart" viewBox="0 0 220 60" preserveAspectRatio="none" aria-label="近 7 日访问量"></svg>
+          <span class="lk">近 7 日访问量</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="layout">
+    <!-- ================= 侧边目录 ================= -->
+    <aside class="toc">
+      <h4>目录</h4>
+      <ol id="tocList"></ol>
+      <div class="toc-note">
+        <b>这是动态站</b><br />
+        正文来自 <code>data/app.db</code>，由 <code>/api/report</code> 提供。<br />
+        点右上角「编辑模式」即可在线改内容（需要编辑口令）。
+      </div>
+      <button class="btn wide" id="btnAddSection" hidden>＋ 新增章节</button>
+      <button class="btn wide" id="btnReset" hidden>↺ 恢复出厂内容</button>
+    </aside>
+
+    <!-- ================= 正文（JS 渲染） ================= -->
+    <article id="doc">
+      <div class="skeleton">
+        <div class="sk-line w60"></div>
+        <div class="sk-line w90"></div>
+        <div class="sk-line w80"></div>
+        <div class="sk-line w40"></div>
+      </div>
+    </article>
+  </div>
+
+  <!-- ================= 留言板 ================= -->
+  <section class="wrap-bottom">
+    <div class="card" id="comments">
+      <h2><span class="num">💬</span><span>留言板</span></h2>
+      <p class="muted">
+        这一块是给老师、同学留的 —— 任何人不需要口令就能留言，留言会存进数据库，并在所有打开的页面上实时出现。
+      </p>
+      <form id="commentForm" class="comment-form">
+        <input id="cmtAuthor" maxlength="40" placeholder="你的名字（可留空，默认「匿名」）" />
+        <textarea id="cmtContent" maxlength="1000" rows="3" placeholder="说点什么…（不超过 1000 字）" required></textarea>
+        <div class="form-foot">
+          <span class="muted" id="cmtHint">提交后会立刻写入数据库并广播给所有页面</span>
+          <button class="btn primary" type="submit">发表留言</button>
+        </div>
+      </form>
+      <div id="commentList" class="comment-list"></div>
+    </div>
+
+    <footer class="foot">
+      <div id="footLeft">© 2026 pb · 人工智能概论课程作业 · AI Agent 使用报告</div>
+      <div id="footRight" class="muted">Node.js 内置 HTTP 服务 + SQLite + SSE 实时推送，零第三方依赖</div>
+    </footer>
+  </section>
+</main>
+
+<!-- ================= 编辑工具条 ================= -->
+<div class="editbar" id="editbar" role="toolbar" aria-label="编辑工具栏">
+  <span class="hint">✏️ 编辑模式：改完点保存，所有页面实时更新</span>
+  <button class="btn primary" id="ebAddTool">＋ 工具行</button>
+  <button class="btn" id="ebMeta">📝 报告信息</button>
+  <button class="btn" id="ebExit">✖ 退出编辑</button>
+</div>
+
+<!-- ================= 口令弹窗 ================= -->
+<div class="modal" id="tokenModal" hidden>
+  <div class="modal-box">
+    <h3>需要编辑口令</h3>
+    <p class="muted">正文存在服务端数据库里，只有输入正确口令的人才能修改 —— 这就是「作者保留编辑权」的实现方式。</p>
+    <input id="tokenInput" type="password" placeholder="请输入编辑口令" autocomplete="off" />
+    <p class="modal-err" id="tokenErr" hidden></p>
+    <div class="modal-foot">
+      <button class="btn primary" id="tokenOk">确定</button>
+      <button class="btn" id="tokenCancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 通用编辑弹窗 ================= -->
+<div class="modal" id="metaModal" hidden>
+  <div class="modal-box wide">
+    <h3>编辑报告信息</h3>
+    <div class="meta-form" id="metaForm"></div>
+    <div class="modal-foot">
+      <button class="btn primary" id="metaSave">保存</button>
+      <button class="btn" id="metaCancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="btn" id="toTop" title="回到顶部">↑</button>
+
+<script>
+/* 由 tools/build-static.mjs 于 2026-10-16T11:50:57.009Z 生成；改内容请改数据库后重新构建 */
+window.__REPORT_DATA__ = {
+  "meta": {
+    "title": "AI Agent 使用报告",
+    "subtitle": "数据库驱动的动态网页 —— 报告内容、工具清单、留言与统计全部来自服务端",
+    "course": "人工智能概论",
+    "assignment": "《AI Agent 使用报告》",
+    "author": "pb",
+    "klass": "（请在此填写你的班级）",
+    "sno": "（请在此填写你的学号）",
+    "teacher": "（可填指导老师）",
+    "version": "v2.0",
+    "date": "2026-10-16"
+  },
+  "sections": [
+    {
+      "id": 45,
+      "anchor": "s0",
+      "num": "00",
+      "title": "报告信息",
+      "summary": "本页的基本信息与「动态」说明。",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "项目",
+            "内容"
+          ],
+          "rows": [
+            [
+              "作者",
+              "pb"
+            ],
+            [
+              "课程 / 作业",
+              "人工智能概论 —— 《AI Agent 使用报告》"
+            ],
+            [
+              "班级 / 学号",
+              "（请在此填写你的班级） / （请在此填写你的学号）"
+            ],
+            [
+              "交付形式",
+              "前后端动态站点（Node.js 内置 HTTP 服务 + SQLite 数据库 + REST API + SSE 实时推送，零第三方依赖）"
+            ],
+            [
+              "完成日期",
+              "2026-10-16"
+            ],
+            [
+              "AI 参与方式",
+              "AI Agent 承担资料整理、结构设计、文案起草、前端与后端编码；作者 pb 负责提出要求、审核事实、修改措辞并对最终内容负责。"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "这一页和「静态网页」的区别",
+          "text": "右上方有一个实时数据面板，它显示的访问量、点赞数、留言数都来自服务端的 SQLite 数据库，并由 SSE 长连接推送更新。换句话说：换一台电脑打开同一个地址，看到的是同一份数据；在 A 页面留言，B 页面会自己冒出来，不需要刷新。"
+        }
+      ],
+      "position": 0,
+      "updated_at": "2026-10-16T10:48:31.728Z"
+    },
+    {
+      "id": 46,
+      "anchor": "s1",
+      "num": "01",
+      "title": "摘要",
+      "summary": "一页话说清这份报告做了什么。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "本文记录了一次真实的人机协作：使用具备工具调用能力的 AI Agent 完成一份课程报告的<strong>动态网站</strong>。报告首先说明 AI Agent 与普通对话式 AI 的区别，接着列出本次使用的智能体工具及其分工，然后按阶段还原从「读懂作业要求」到「上线一个可交互站点」的完整流程，并重点说明为了让作者随时可以修改内容而设计的「在线编辑 + 实时同步」机制。"
+        },
+        {
+          "type": "p",
+          "text": "结论是：Agent 更适合承担检索、起草、编码和自检这类结构化劳动，而目标设定、价值判断与最终署名必须留在人手里。"
+        },
+        {
+          "type": "callout",
+          "tone": "edit",
+          "title": "关键词",
+          "text": "AI Agent；大语言模型；工具调用；人机协同；REST API；SQLite；SSE 实时推送；提示工程"
+        }
+      ],
+      "position": 1,
+      "updated_at": "2026-10-16T10:48:31.730Z"
+    },
+    {
+      "id": 47,
+      "anchor": "s2",
+      "num": "02",
+      "title": "认识 AI Agent",
+      "summary": "定义、与聊天机器人的区别、核心循环与四大部件。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "AI Agent（智能体）是<strong>以大语言模型为推理内核、能够自主决定下一步动作并调用外部工具来完成目标</strong>的系统。它不只是「你问我答」，而是会自己拆解任务、动手执行、查看执行结果，发现不对再改方案，直到目标达成或确认无法达成。"
+        },
+        {
+          "type": "table",
+          "head": [
+            "对比维度",
+            "普通对话式 AI",
+            "AI Agent"
+          ],
+          "rows": [
+            [
+              "交互方式",
+              "一问一答，一次回复即结束",
+              "多步循环，自主决定下一步做什么"
+            ],
+            [
+              "能否动手",
+              "只能输出文字",
+              "可读写文件、执行命令、访问网络、操作浏览器"
+            ],
+            [
+              "是否有记忆",
+              "仅限当前对话",
+              "可维护任务上下文、笔记与长期记忆"
+            ],
+            [
+              "错误处理",
+              "由用户发现并重新提问",
+              "自己读取报错、定位原因、重新尝试"
+            ],
+            [
+              "典型产出",
+              "一段文字",
+              "可交付的成品，例如你正在看的这个网站"
+            ]
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "t": "① 感知",
+              "d": "读懂目标、约束与已有材料"
+            },
+            {
+              "t": "② 规划",
+              "d": "把大目标拆成可执行的小步骤"
+            },
+            {
+              "t": "③ 行动",
+              "d": "调用工具：搜索、读文件、写代码、跑命令"
+            },
+            {
+              "t": "④ 观察",
+              "d": "读取结果或报错信息"
+            },
+            {
+              "t": "⑤ 反思",
+              "d": "结果不对就改方案，回到 ② 继续"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "这一「思考—行动—观察」的循环来自 ReAct 等研究工作<sup><a href=\"#s10\">[1]</a></sup>，也是本站所用 Agent 运行方式的基本骨架：它每走一步都要先想做什么、调用一次工具、看结果，再决定下一步。"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>模型（大脑）</strong>：负责理解、推理与决策，决定「下一步做什么」。",
+            "<strong>工具（手脚）</strong>：文件读写、命令执行、网页搜索、浏览器操作等。没有工具就只是聊天。",
+            "<strong>上下文与记忆（笔记本）</strong>：保存任务目标、已完成事项、中间结论，避免长任务中途「忘事」。",
+            "<strong>循环与校验（纪律）</strong>：规定何时继续、何时停下、如何判断做完了 —— 决定了输出可不可靠。"
+          ]
+        }
+      ],
+      "position": 2,
+      "updated_at": "2026-10-16T10:48:31.732Z"
+    },
+    {
+      "id": 48,
+      "anchor": "s3",
+      "num": "03",
+      "title": "使用的 Agent 工具",
+      "summary": "工具清单与它们之间的协作关系。",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "warn",
+          "title": "请按你的真实情况核对下表",
+          "text": "下面的工具清单存在数据库的 tools 表里，网页上的「编辑模式」可以直接增删改行 —— 改完刷新一下，表格就变了。带「本项目使用」的是这次真正用到的；「可用未使用」表示环境里具备、本次没启用；「待你确认」需要你按实际情况填。"
+        },
+        {
+          "type": "tools"
+        },
+        {
+          "type": "p",
+          "text": "关键点在于：<strong>工具层是接在「运行时」上的，而不是接在模型上的。</strong>同一个模型，配上文件与命令行工具就能改代码，配上浏览器工具就能查资料核实内容；因此讨论「用了哪个 Agent 工具」，实际上是在讨论<strong>模型 + 工具集合 + 编排规则</strong>这三者。"
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "t": "我（pb）",
+              "d": "提出要求：报告网站、署名、保留编辑权"
+            },
+            {
+              "t": "主控 Agent",
+              "d": "拆解任务、决定顺序、调用工具"
+            },
+            {
+              "t": "工具层",
+              "d": "搜索 / 读文件 / 写代码 / 跑命令 / 起服务 / 截图验证"
+            },
+            {
+              "t": "交付物",
+              "d": "一个能跑起来的动态网站 + 数据库"
+            }
+          ]
+        }
+      ],
+      "position": 3,
+      "updated_at": "2026-10-16T10:48:31.734Z"
+    },
+    {
+      "id": 49,
+      "anchor": "s4",
+      "num": "04",
+      "title": "项目流程",
+      "summary": "S0–S7 八个阶段的完整还原。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "整个项目从一句自然语言需求开始，到交付一个可交互的动态站点结束。下面按阶段还原，并标出每一阶段 <strong>Agent 做了什么</strong>、<strong>我做了什么</strong>、以及<strong>产出物/检查点</strong>。"
+        },
+        {
+          "type": "stats",
+          "items": [
+            {
+              "v": "8",
+              "k": "工作阶段"
+            },
+            {
+              "v": "0",
+              "k": "第三方依赖"
+            },
+            {
+              "v": "2",
+              "k": "交付形态（网站 + 离线版）"
+            },
+            {
+              "v": "∞",
+              "k": "可修改次数"
+            }
+          ]
+        },
+        {
+          "type": "timeline",
+          "items": [
+            {
+              "tag": "S0",
+              "title": "需求接收",
+              "agent": "读取用户消息，识别出这是一份「人工智能概论」课程作业，而非随手写个页面。",
+              "me": "说明作业要求、作者署名 pb、需要保留编辑权。"
+            },
+            {
+              "tag": "S1",
+              "title": "约束提取与目标澄清",
+              "agent": "把口语化需求翻译成可执行的约束清单：交付物、署名、内容要点、可编辑、可提交。",
+              "me": "确认范围；并提出「不要静态网页」，把方向从单文件报告改成动态网站。"
+            },
+            {
+              "tag": "S2",
+              "title": "架构设计",
+              "agent": "确定技术选型：Node.js 内置 http 模块（零依赖）+ SQLite 数据库 + REST API + SSE 实时推送；内容存库、前端渲染。",
+              "me": "拍板要做成「能跑的站」，不是一张长图。"
+            },
+            {
+              "tag": "S3",
+              "title": "内容生产",
+              "agent": "把原静态版正文重构为结构化数据块（段落/表格/流程图/时间线），写入种子数据。",
+              "me": "审核事实与措辞，替换成自己的表达。"
+            },
+            {
+              "tag": "S4",
+              "title": "后端实现",
+              "agent": "编写数据库层（建表/种子/增删改查）、HTTP 服务（静态资源 + REST API + SSE 广播 + 编辑口令校验）。",
+              "me": "——"
+            },
+            {
+              "tag": "S5",
+              "title": "前端实现",
+              "agent": "编写动态前端：fetch 取数渲染、在线编辑、留言板、点赞、访问统计图表、SSE 自动刷新。",
+              "me": "提出风格偏好与修改意见。"
+            },
+            {
+              "tag": "S6",
+              "title": "自检与验证",
+              "agent": "启动服务、逐条调用 API 验证、用无头浏览器截图核对渲染、检查实时推送是否生效。",
+              "me": "——"
+            },
+            {
+              "tag": "S7",
+              "title": "交付与迭代",
+              "agent": "交付启动脚本、说明文档，并保留继续修改的能力。",
+              "me": "按实际情况填空、定稿、署名提交。"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "环节",
+            "AI Agent 承担",
+            "我（pb）承担"
+          ],
+          "rows": [
+            [
+              "目标与边界",
+              "追问与复述要求，形成约束清单",
+              "拍板要做成什么、给谁看、什么算合格"
+            ],
+            [
+              "资料与事实",
+              "检索、整理、标注来源",
+              "核验真伪，对结论负责"
+            ],
+            [
+              "内容撰写",
+              "大纲、初稿、结构化表达",
+              "判断观点是否成立，改写成自己的话"
+            ],
+            [
+              "技术实现",
+              "写代码、调试、起服务、验证",
+              "提出风格偏好与修改意见"
+            ],
+            [
+              "最终署名",
+              "——（不署名、不代替作者）",
+              "审核、定稿、署名、提交"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "warn",
+          "title": "自检阶段真实踩到的两个坑（如实记录）",
+          "text": "① 前端脚本里把一个按钮的 id 写错了（HTML 里是 ebAddTool，JS 里写成了 btnAddTool），模块在绑定事件时抛出异常，结果是<strong>整页空白</strong> —— 这暴露出「模块脚本只要有一处报错，后面的初始化代码全都不会执行」。修法：把事件绑定包一层 on() 函数，元素不存在时只打印警告，不再中断整个脚本。<br />② 点赞数字做跳动动画时，顶部按钮外面并没有 <code>.live-cell</code> 父元素，<code>closest()</code> 返回 null，渲染函数抛错后整页被兜底逻辑替换成「读取失败」的提示。<br />这两个问题都不是靠「读代码」发现的，而是<strong>先真的把服务跑起来、再用无头浏览器导出 DOM 和控制台日志</strong>才定位到 —— 这也印证了第 04 节里那句话：Agent 的价值不只在写，而在于它能把成品真的跑一遍。"
+        }
+      ],
+      "position": 4,
+      "updated_at": "2026-10-16T10:48:31.736Z"
+    },
+    {
+      "id": 50,
+      "anchor": "s5",
+      "num": "05",
+      "title": "技术实现",
+      "summary": "这个站是怎么跑起来的：请求、数据、推送三条线。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "整个项目<strong>没有安装任何第三方依赖</strong>：后端只用 Node.js 内置模块（<code>node:http</code>、<code>node:fs</code>、<code>node:sqlite</code>、<code>node:crypto</code>），前端是原生 JavaScript，不加载任何 CDN 资源。"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>数据线：</strong>报告正文、工具清单、留言、点赞、访问日志全部存在 <code>data/app.db</code>（SQLite 单文件数据库）。页面不含有任何写死的正文。",
+            "<strong>请求线：</strong>浏览器用 <code>fetch()</code> 调 REST API 取数并渲染；修改内容用 <code>PUT /api/sections/:anchor</code> 写回数据库，需要编辑口令。",
+            "<strong>推送线：</strong>服务端用 SSE（Server-Sent Events）维持长连接，任何一处数据变化都会广播给所有打开的页面，实现「一边改、到处自动更新」。"
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "接口",
+            "方法",
+            "作用",
+            "是否需要口令"
+          ],
+          "rows": [
+            [
+              "/api/report",
+              "GET",
+              "取回整份报告（元信息 + 章节 + 工具表）",
+              "否"
+            ],
+            [
+              "/api/sections/:anchor",
+              "PUT",
+              "修改某一章节的标题/摘要/正文",
+              "是"
+            ],
+            [
+              "/api/sections",
+              "POST",
+              "新增一个章节",
+              "是"
+            ],
+            [
+              "/api/sections/:anchor",
+              "DELETE",
+              "删除一个章节",
+              "是"
+            ],
+            [
+              "/api/tools",
+              "POST",
+              "新增一行工具",
+              "是"
+            ],
+            [
+              "/api/tools/:id",
+              "PUT / DELETE",
+              "修改 / 删除工具行",
+              "是"
+            ],
+            [
+              "/api/comments",
+              "GET / POST",
+              "读取 / 发表留言",
+              "否"
+            ],
+            [
+              "/api/like",
+              "POST",
+              "点赞 +1，返回最新总数",
+              "否"
+            ],
+            [
+              "/api/stats",
+              "GET",
+              "访问量、点赞、留言、近 7 日访问曲线",
+              "否"
+            ],
+            [
+              "/api/events",
+              "GET (SSE)",
+              "订阅实时变更事件",
+              "否"
+            ]
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "t": "浏览器",
+              "d": "fetch /api/report"
+            },
+            {
+              "t": "Node 服务",
+              "d": "校验参数、读写 SQLite"
+            },
+            {
+              "t": "SQLite",
+              "d": "data/app.db 单文件持久化"
+            },
+            {
+              "t": "SSE 广播",
+              "d": "通知所有在线页面刷新"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "两种交付形态（同一套前端代码）",
+          "text": "<strong>① 服务端动态版</strong>：在本机双击 <code>start.cmd</code> 启动，内容存在 SQLite 里，可在线编辑、留言、点赞，改动通过 SSE 实时推送给所有打开的页面 —— 也就是你现在看到的这一版（左上角会显示「实时连接中」）。<br /><strong>② 静态快照版</strong>：用 <code>node tools/build-static.mjs</code> 把数据库内容导出成 <code>data.js</code> 快照 + 同一套前端，可直接托管到 GitHub Pages，<strong>任何人凭一条链接就能打开，不需要谁开着电脑</strong>。代价是编辑、留言、点赞只保存在浏览器本地（页面顶部会明确横幅提示）。<br />两种形态共用同一份前端代码：页面启动时会自动判断自己跑在哪种模式，无需改代码、无需重新构建。这种「同一套代码、两种运行环境」的取舍，也是本次实践里比较有意思的一部分。"
+        },
+        {
+          "type": "code",
+          "text": "// server.js 节选：一次写操作的完整链路\ncase \"PUT\": {\n  requireEditToken(req);                 // 1. 口令校验，保护作者编辑权\n  const patch = await readJSON(req);     // 2. 读取前端提交的修改\n  const section = db.updateSection(anchor, patch);\n  broadcast(\"changed\", { anchor });      // 3. 推给所有在线页面\n  return json(res, 200, { ok: true, section });\n}"
+        }
+      ],
+      "position": 5,
+      "updated_at": "2026-10-16T10:48:31.738Z"
+    },
+    {
+      "id": 51,
+      "anchor": "s6",
+      "num": "06",
+      "title": "「保留编辑权」是怎么做到的",
+      "summary": "三条互不冲突的修改通道，作者随时说了算。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "作业要求里明确提到要保留我的编辑权利。静态版的做法是「改文件再另存」，动态版把它升级成<strong>在线编辑 + 数据库持久化 + 实时同步</strong>。"
+        },
+        {
+          "type": "table",
+          "head": [
+            "入口",
+            "怎么操作",
+            "适合什么时候用"
+          ],
+          "rows": [
+            [
+              "① 网页在线编辑",
+              "点右上角「✏️ 编辑模式」→ 输入编辑口令 → 直接改标题、摘要、段落；工具表可增删改行",
+              "随时补内容、改措辞，改完所有人立刻看到"
+            ],
+            [
+              "② 直接改数据库",
+              "用任意 SQLite 工具打开 data/app.db，改完刷新页面即可",
+              "批量修改、导入导出数据"
+            ],
+            [
+              "③ 改种子数据",
+              "编辑 lib/seed.js 后运行「重置数据.cmd」，恢复成你想要的初始内容",
+              "想要一份「干净版」交作业"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "ok",
+          "title": "编辑口令",
+          "text": "默认口令是 <code>pb-2026</code>（写在 lib/seed.js 里，也可以在启动时用环境变量 EDIT_TOKEN 覆盖）。只有输入口令的人才能改内容 —— 这就是「作者保留编辑权」的技术实现：别人可以看、可以留言、可以点赞，但改不了正文。"
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "为什么不做成登录系统",
+          "text": "一个人用的课程作业，做一整套账号体系性价比很低。用一个口令 + 服务端校验，已经能表达「谁有权改」这件事，代码量还不到 20 行。"
+        }
+      ],
+      "position": 6,
+      "updated_at": "2026-10-16T10:48:31.740Z"
+    },
+    {
+      "id": 52,
+      "anchor": "s7",
+      "num": "07",
+      "title": "提示词示例与拆解",
+      "summary": "同一个 Agent，提示词越清楚，返工越少。",
+      "blocks": [
+        {
+          "type": "code",
+          "text": "人工智能概论的老师布置了一个任务，现在我需要你给我做一个网页。\n内容是 AI Agent 的使用报告，写清网页作者是 pb、使用的 agent 工具、\n以及项目流程等，保留我的编辑权利。"
+        },
+        {
+          "type": "p",
+          "text": "这句话加上后续一句「能不能不是静态网页」，就把需求从「交一份文档」改成了「做一个能跑的系统」。第二句才是真正的分水岭 —— 它没有描述任何技术细节，只表达了「不够」的感觉，剩下的选型由 Agent 给出方案。"
+        },
+        {
+          "type": "table",
+          "head": [
+            "要素",
+            "原文中的对应内容",
+            "对 Agent 的作用"
+          ],
+          "rows": [
+            [
+              "场景",
+              "「人工智能概论的老师布置了一个任务」",
+              "决定语气、深度与读者对象"
+            ],
+            [
+              "交付物",
+              "「做一个网页」",
+              "确定产出格式，而不是作文或 PPT"
+            ],
+            [
+              "内容要点",
+              "「作者是 pb」「使用的 agent 工具」「项目流程」",
+              "直接给出章节骨架，不需要 Agent 猜"
+            ],
+            [
+              "附加约束",
+              "「保留我的编辑权利」",
+              "要求交付物必须可再修改，直接催生了第 06 节的编辑机制"
+            ],
+            [
+              "追加要求",
+              "「能不能不是静态网页」",
+              "从单文件报告升级为前后端动态站点"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "可以改进的地方",
+          "text": "如果一开始就说清「要有后端和数据库」「要能演示给别人看」「要能在答辩时现场改内容」，Agent 会一次到位，少一轮返工。这也是本次实践最大的体会：<strong>与 Agent 协作的瓶颈往往不在模型能力，而在需求表达的清晰度。</strong>"
+        }
+      ],
+      "position": 7,
+      "updated_at": "2026-10-16T10:48:31.743Z"
+    },
+    {
+      "id": 53,
+      "anchor": "s8",
+      "num": "08",
+      "title": "效果评估、局限与声明",
+      "summary": "收获、风险与学术诚信声明。",
+      "blocks": [
+        {
+          "type": "ul",
+          "items": [
+            "<strong>把「写报告」变成「校对报告」。</strong>Agent 负责从零到八成，我专注于判断与修改。",
+            "<strong>可验证的工作方式。</strong>不是收到一堆文字就用，而是让 Agent 起服务、调接口、截图核对 —— 结果可以被检验。",
+            "<strong>交付物本身可迭代。</strong>内容存在数据库里，改完立即生效，不用重建、不用重新部署。",
+            "<strong>零依赖的工程取舍。</strong>不装 express 和 better-sqlite3，用 Node 内置模块实现，换来「谁拿到都能直接跑」。"
+          ]
+        },
+        {
+          "type": "table",
+          "head": [
+            "风险",
+            "具体表现",
+            "应对方式"
+          ],
+          "rows": [
+            [
+              "事实性错误",
+              "可能编造看似合理的引用、数据或工具能力",
+              "所有外部事实与链接都人工复核"
+            ],
+            [
+              "过度自信",
+              "写得头头是道，但不等于正确",
+              "把 AI 输出当「草稿」而不是「结论」"
+            ],
+            [
+              "风格同质化",
+              "措辞四平八稳，缺少个人观点",
+              "用自己的话重写关键段落"
+            ],
+            [
+              "能力边界",
+              "涉及价值判断、专业结论时不可靠",
+              "关键判断由人完成，AI 只做辅助"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "tone": "warn",
+          "title": "学术诚信声明",
+          "text": "本报告由作者 pb 使用 AI Agent 辅助完成：AI 参与了资料整理、内容起草、前后端编码与自检。全部内容经作者阅读、核对与修改，文中的观点、事实与最终提交版本由作者本人负责。使用 AI 的过程已在本文中如实记录，供课程考核参考。"
+        }
+      ],
+      "position": 8,
+      "updated_at": "2026-10-16T10:48:31.744Z"
+    },
+    {
+      "id": 54,
+      "anchor": "s9",
+      "num": "09",
+      "title": "总结与展望",
+      "summary": "这次作业到底学到了什么。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "这次作业让我对 AI Agent 有了一个具体而非概念化的认识：<strong>它不是更聪明的搜索引擎，而是一个能动手干活的协作者。</strong>它的价值不在于替你思考，而在于把「想清楚之后」的大量执行工作压缩到几分钟内完成 —— 查资料、搭结构、写代码、跑起来看结果、再改。"
+        },
+        {
+          "type": "p",
+          "text": "同时我也看到它的边界：需求说得含糊，它就只能猜；事实不去核对，它就可能编；最终署名与责任，永远在人的一边。对学习者而言，最该练的可能不是「怎么让 AI 帮我写完」，而是<strong>「怎么把一个任务描述到 AI 能接得住，同时自己还能判断做得对不对」</strong>。"
+        },
+        {
+          "type": "p",
+          "text": "后续如果继续做，我希望往三个方向走：一是加上用户账号，让每个同学都能维护自己的一页报告；二是接入真实模型接口，在页面里直接和 Agent 对话；三是把访问数据做成更完整的看板，用真实数据讲「有多少人看过这份作业」。"
+        }
+      ],
+      "position": 9,
+      "updated_at": "2026-10-16T10:48:31.747Z"
+    },
+    {
+      "id": 55,
+      "anchor": "s10",
+      "num": "10",
+      "title": "附录与参考资料",
+      "summary": "交付清单与参考来源。",
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            "文件",
+            "说明"
+          ],
+          "rows": [
+            [
+              "server.js",
+              "HTTP 服务：静态资源 + REST API + SSE 实时推送 + 编辑口令"
+            ],
+            [
+              "lib/db.js",
+              "SQLite 数据层：建表、种子、章节/工具/留言/点赞/访问统计"
+            ],
+            [
+              "lib/seed.js",
+              "初始内容（改这里 + 重置数据 = 恢复出厂设置）"
+            ],
+            [
+              "public/",
+              "前端：index.html / styles.css / app.js（原生 JS，无框架）"
+            ],
+            [
+              "data/app.db",
+              "SQLite 数据库文件，首次运行自动创建"
+            ],
+            [
+              "start.cmd",
+              "双击启动，自动打开浏览器"
+            ]
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Yao S. 等. <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>. arXiv:2210.03629, 2022. <a href=\"https://arxiv.org/abs/2210.03629\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2210.03629</a>",
+            "Schick T. 等. <em>Toolformer: Language Models Can Teach Themselves to Use Tools</em>. arXiv:2302.04761, 2023. <a href=\"https://arxiv.org/abs/2302.04761\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2302.04761</a>",
+            "Shinn N. 等. <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em>. arXiv:2303.11366, 2023. <a href=\"https://arxiv.org/abs/2303.11366\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2303.11366</a>",
+            "Anthropic. <em>Building Effective Agents</em>. <a href=\"https://www.anthropic.com/engineering/building-effective-agents\" target=\"_blank\" rel=\"noreferrer\">anthropic.com/engineering/building-effective-agents</a>",
+            "Node.js 官方文档：<em>node:sqlite</em> 内置数据库模块。 <a href=\"https://nodejs.org/api/sqlite.html\" target=\"_blank\" rel=\"noreferrer\">nodejs.org/api/sqlite.html</a>",
+            "MDN：<em>Server-sent events</em>（本项目实时推送所用协议）。 <a href=\"https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events\" target=\"_blank\" rel=\"noreferrer\">developer.mozilla.org</a>"
+          ]
+        }
+      ],
+      "position": 10,
+      "updated_at": "2026-10-16T10:48:31.748Z"
+    }
+  ],
+  "tools": [
+    {
+      "id": 52,
+      "name": "DeepSeek Harness（DSH）桌面客户端",
+      "kind": "宿主 / 运行时",
+      "usage": "承载本次全部会话：把大模型接到工具、插件、技能、子代理上，并提供审批与文件沙箱。",
+      "status": "used",
+      "position": 0
+    },
+    {
+      "id": 53,
+      "name": "主控 Agent（Captain）",
+      "kind": "规划与执行",
+      "usage": "解析作业要求 → 拆出内容/设计/后端/前端/自检几块 → 逐步执行并汇总。",
+      "status": "used",
+      "position": 1
+    },
+    {
+      "id": 54,
+      "name": "文件工具（读写 / 精确编辑 / 检索）",
+      "kind": "工具",
+      "usage": "读取工作区、按关键字搜索、写出并修改本站的源码文件。",
+      "status": "used",
+      "position": 2
+    },
+    {
+      "id": 55,
+      "name": "命令行（PowerShell 7）",
+      "kind": "工具",
+      "usage": "探测运行环境、启动与验证 Node 服务、定位 DSH 自带 node。",
+      "status": "used",
+      "position": 3
+    },
+    {
+      "id": 56,
+      "name": "无头浏览器（渲染截图）",
+      "kind": "工具",
+      "usage": "把成品页面真实渲染成图片并核对排版，而不是「写完就交」。",
+      "status": "used",
+      "position": 4
+    },
+    {
+      "id": 57,
+      "name": "图像理解（截图分析 / OCR）",
+      "kind": "工具",
+      "usage": "分析渲染截图与打印 PDF 的文字层，确认没有样式错乱、内容被截断。",
+      "status": "used",
+      "position": 5
+    },
+    {
+      "id": 58,
+      "name": "Skills（技能包）",
+      "kind": "可复用指令",
+      "usage": "按需加载领域规范，例如 Cordis 组合编排、桌面客户端用法速查。",
+      "status": "used",
+      "position": 6
+    },
+    {
+      "id": 59,
+      "name": "网页搜索 / 抓取",
+      "kind": "工具",
+      "usage": "核对 ReAct 等术语与参考资料链接是否真实可访问。",
+      "status": "used",
+      "position": 7
+    },
+    {
+      "id": 60,
+      "name": "子代理（Subagent）",
+      "kind": "并行工作单元",
+      "usage": "可在独立上下文中并行处理互不依赖的子任务。本次规模较小，未强行拆分。",
+      "status": "opt",
+      "position": 8
+    },
+    {
+      "id": 61,
+      "name": "AgentTeams 多智能体协作",
+      "kind": "协作框架",
+      "usage": "队长拆任务、成员各自认领、互相审校，适合更大的项目。",
+      "status": "todo",
+      "position": 9
+    },
+    {
+      "id": 62,
+      "name": "动态插件（Cordis）",
+      "kind": "运行时扩展",
+      "usage": "可在会话中临时为 Agent 增加新工具或页面 UI，本次未使用。",
+      "status": "opt",
+      "position": 10
+    },
+    {
+      "id": 63,
+      "name": "撤销 / 快照（Savepoint）",
+      "kind": "安全机制",
+      "usage": "配置或文件改错时可一键回滚，属于「敢让 Agent 动手」的前提条件。",
+      "status": "opt",
+      "position": 11
+    }
+  ],
+  "comments": [
+    {
+      "id": 8,
+      "author": "老师",
+      "content": "报告结构清楚，动态部分演示得不错。把班级学号填上就可以交了。",
+      "created_at": "2026-10-16T10:48:31.776Z"
+    }
+  ],
+  "stats": {
+    "visits": 0,
+    "visitsToday": 0,
+    "last7": [],
+    "likes": 0,
+    "comments": 1,
+    "sections": 11
+  },
+  "builtAt": "2026-10-16T11:50:57.009Z"
+};
+
+</script>
+<script>window.__STATIC__ = true;</script>
+<script>
+/* ============================================================
+   AI Agent 使用报告 · 前端逻辑（原生 JS，无框架）
+   数据全部来自服务端 REST API；页面变更由 SSE 实时推送。
+   ============================================================ */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtTime = (iso) => {
+  const d = new Date(iso);
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
+const STATUS = {
+  used: { label: '本项目使用', cls: 'used' },
+  opt: { label: '可用未使用', cls: 'opt' },
+  todo: { label: '待你确认', cls: 'todo' },
+};
+
+const state = {
+  meta: {}, sections: [], tools: [], stats: {}, comments: [],
+  editing: false, loading: true, editingSection: null, hasUpdate: false,
+};
+
+/* ---------------------------------------------------------- API */
+async function api(path, { method = 'GET', body, token } = {}) {
+  if (STATIC) {                       // 静态部署（GitHub Pages）：没有服务端，走本地实现
+    const r = await localApi(path, { method, body });
+    rerender();
+    return r;
+  }
+  const headers = {};
+  if (body !== undefined) headers['content-type'] = 'application/json';
+  const t = token || sessionStorage.getItem('aar-token');
+  if (t) headers['x-edit-token'] = t;
+  const res = await fetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.error || `请求失败 (${res.status})`), { status: res.status });
+  return data;
+}
+
+/* ============================================================
+   静态部署模式（GitHub Pages / 直接双击打开）
+   数据来自打包时生成的 data.js 快照，改动保存在浏览器 localStorage。
+   ============================================================ */
+const STATIC = !!window.__STATIC__;
+const LS_KEY = 'aar-static-v1';
+const snapshot = () => window.__REPORT_DATA__ || { meta: {}, sections: [], tools: [], comments: [], stats: {} };
+
+function localLoad() {
+  try { const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+function localSave() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      meta: state.meta, sections: state.sections, tools: state.tools,
+      comments: state.comments, likes: state.stats.likes || 0,
+    }));
+  } catch {}
+}
+function localReset() {
+  try { localStorage.removeItem(LS_KEY); } catch {}
+  const s = snapshot();
+  state.meta = { ...(s.meta || {}) };
+  state.sections = JSON.parse(JSON.stringify(s.sections || []));
+  state.tools = JSON.parse(JSON.stringify(s.tools || []));
+  state.comments = JSON.parse(JSON.stringify(s.comments || []));
+  state.stats = { ...(s.stats || {}), likes: (s.stats && s.stats.likes) || 0 };
+}
+function payload() {
+  return { meta: state.meta, sections: state.sections, tools: state.tools, comments: state.comments, stats: state.stats };
+}
+function download(name, text, type = 'text/plain;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/** 本地版 API：路径与接口名都和服务端保持一致，方便对照阅读 */
+async function localApi(path, { method = 'GET', body } = {}) {
+  const m = method.toUpperCase();
+  const sec = path.match(/^\/api\/sections(?:\/([\w-]+))?$/);
+  if (sec) {
+    const anchor = sec[1];
+    if (m === 'PUT' && anchor) {
+      const s = state.sections.find((x) => x.anchor === anchor);
+      if (!s) throw new Error('章节不存在');
+      if (body.title !== undefined) s.title = body.title;
+      if (body.summary !== undefined) s.summary = body.summary;
+      if (body.blocks !== undefined) s.blocks = body.blocks;
+      s.updated_at = new Date().toISOString();
+      localSave();
+      return { ok: true, section: s };
+    }
+    if (m === 'POST') {
+      const s = { anchor: 's' + Date.now(), num: body.num || String(state.sections.length).padStart(2, '0'), title: body.title || '新章节', summary: body.summary || '', blocks: body.blocks || [] };
+      state.sections.push(s);
+      localSave();
+      return { ok: true, section: s };
+    }
+    if (m === 'DELETE' && anchor) {
+      state.sections = state.sections.filter((x) => x.anchor !== anchor);
+      localSave();
+      return { ok: true };
+    }
+  }
+  if (path === '/api/meta' && m === 'PUT') {
+    Object.assign(state.meta, body || {});
+    localSave();
+    return { ok: true, meta: state.meta };
+  }
+  const tool = path.match(/^\/api\/tools(?:\/(\d+))?$/);
+  if (tool) {
+    const id = tool[1] ? Number(tool[1]) : null;
+    if (m === 'POST' && !id) {
+      const t = { id: Date.now(), name: body.name || '', kind: body.kind || '', usage: body.usage || '', status: body.status || 'todo' };
+      state.tools.push(t); localSave();
+      return { ok: true, tool: t };
+    }
+    if (m === 'PUT' && id) {
+      const t = state.tools.find((x) => Number(x.id) === id);
+      Object.assign(t, body || {}); localSave();
+      return { ok: true, tool: t };
+    }
+    if (m === 'DELETE' && id) {
+      state.tools = state.tools.filter((x) => Number(x.id) !== id);
+      localSave();
+      return { ok: true };
+    }
+  }
+  if (path === '/api/comments' && m === 'POST') {
+    const c = { id: Date.now(), author: (body.author || '匿名').slice(0, 40), content: String(body.content || '').slice(0, 1000), created_at: new Date().toISOString(), local: true };
+    state.comments.unshift(c);
+    localSave();
+    return { ok: true, comment: c };
+  }
+  const cm = path.match(/^\/api\/comments\/(\d+)$/);
+  if (cm && m === 'DELETE') {
+    state.comments = state.comments.filter((c) => Number(c.id) !== Number(cm[1]));
+    localSave();
+    return { ok: true };
+  }
+  if (path === '/api/like' && m === 'POST') {
+    state.stats.likes = (state.stats.likes || 0) + 1;
+    localSave();
+    return { ok: true, likes: state.stats.likes };
+  }
+  if (path === '/api/reset' && m === 'POST') {
+    localReset();
+    return { ok: true, stats: state.stats };
+  }
+  if (path === '/api/verify-token') return { ok: true };
+  throw new Error('静态版不支持该操作：' + m + ' ' + path);
+}
+
+/** 静态版顶部横幅 */
+function mountStaticBanner() {
+  const hasDataFile = !!document.querySelector('script[src="data.js"]');   // 多文件静态版才有 data.js
+  const el = document.createElement('div');
+  el.className = 'static-banner';
+  el.id = 'staticBanner';
+  el.innerHTML = `
+    <div class="sb-in">
+      <b>📄 当前是静态部署版</b>
+      <span>页面内容是一份从数据库导出的快照；在这里的<strong>编辑、留言、点赞只保存在你自己的浏览器</strong>里（不会影响别人）。
+      想体验「改一处、所有页面实时同步」的服务端版本，请在本机运行 <code>start.cmd</code>。</span>
+      <span class="sb-actions">
+        ${hasDataFile ? '<button class="btn" id="sbData">⬇️ 导出我改过的 data.js</button>' : ''}
+        <button class="btn primary" id="sbHtml">⬇️ 导出单文件 HTML</button>
+        <button class="btn" id="sbClear">↺ 清除本地改动</button>
+      </span>
+    </div>`;
+  document.querySelector('main').prepend(el);
+
+  const bind = (id, fn) => { const b = document.getElementById(id); if (b) b.onclick = fn; };
+
+  bind('sbData', () => {
+    download('data.js', 'window.__REPORT_DATA__ = ' + JSON.stringify(payload(), null, 2) + ';\n', 'text/javascript;charset=utf-8');
+    toast('已导出 data.js —— 覆盖仓库里的同名文件即可让所有人都看到');
+  });
+
+  bind('sbHtml', () => {
+    const clone = document.documentElement.cloneNode(true);
+    ['#staticBanner', '#toast', '.editbar', '#progressBar', '#toTop'].forEach((sel) =>
+      $$(sel, clone).forEach((n) => n.remove()));
+    const tl = clone.querySelector('#tocList'); if (tl) tl.innerHTML = '';
+    const tn = clone.querySelector('#topNav'); if (tn) tn.innerHTML = '';
+    const d = clone.querySelector('#doc'); if (d) d.innerHTML = '';
+    $$('[contenteditable]', clone).forEach((n) => n.removeAttribute('contenteditable'));
+
+    // 清掉所有旧的内容快照（多文件版是 data.js，单文件版是内联脚本），
+    // 再把当前内容写成唯一一份放进 head —— 保证它一定在 app.js 之前执行。
+    Array.from(clone.querySelectorAll('script')).forEach((s) => {
+      const src = s.getAttribute('src') || '';
+      if (/data\.js$/i.test(src) || s.textContent.includes('__REPORT_DATA__')) s.remove();
+    });
+    const inline = clone.ownerDocument.createElement('script');
+    inline.textContent = 'window.__REPORT_DATA__=' + JSON.stringify(payload()) + ';';
+    clone.querySelector('head').appendChild(inline);
+
+    download('AI-Agent-使用报告-pb.html', '<!DOCTYPE html>\n' + clone.outerHTML + '\n', 'text/html;charset=utf-8');
+    toast('已导出一份可离线打开、可直接发老师、也可覆盖上传的单文件 HTML');
+  });
+
+  bind('sbClear', () => {
+    if (!confirm('清除本浏览器里的所有改动，恢复成快照内容？')) return;
+    localReset(); rerender();
+    toast('已恢复为快照内容');
+  });
+}
+
+/* ---------------------------------------------------------- 提示 */
+let toastTimer = null;
+function toast(msg, { action, onClick, ms = 2600 } = {}) {
+  const el = $('#toast');
+  el.innerHTML = esc(msg);
+  el.classList.add('show');
+  el.classList.toggle('action', !!action);
+  el.onclick = action ? onClick : null;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); el.onclick = null; }, ms);
+}
+
+/* ---------------------------------------------------------- 主题 */
+const safeGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const applyTheme = (t) => { document.documentElement.setAttribute('data-theme', t); safeSet('aar-theme', t); };
+applyTheme(safeGet('aar-theme') ||
+  (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+$('#btnTheme').onclick = () =>
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+/* ============================================================
+   渲染：块类型 → DOM
+   ============================================================ */
+function renderBlock(b) {
+  switch (b.type) {
+    case 'p':
+      return `<p>${b.text ?? ''}</p>`;
+    case 'ul':
+      return `<ul>${(b.items || []).map((i) => `<li>${i}</li>`).join('')}</ul>`;
+    case 'table':
+      return `<div class="table-wrap"><table>
+        <thead><tr>${(b.head || []).map((h) => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${(b.rows || []).map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>`;
+    case 'callout': {
+      const tone = ['warn', 'ok', 'edit', 'info'].includes(b.tone) ? b.tone : 'info';
+      return `<div class="callout ${tone === 'info' ? '' : tone}">
+        ${b.title ? `<span class="ct">${b.title}</span>` : ''}<p>${b.text ?? ''}</p></div>`;
+    }
+    case 'flow':
+      return `<div class="flow">${(b.steps || [])
+        .map((s, i) => `${i ? '<span class="arrow">→</span>' : ''}<div class="step"><b>${s.t}</b><span>${s.d}</span></div>`)
+        .join('')}</div>`;
+    case 'stats':
+      return `<div class="stats">${(b.items || [])
+        .map((s) => `<div class="stat"><div class="v">${s.v}</div><div class="k">${s.k}</div></div>`).join('')}</div>`;
+    case 'timeline':
+      return `<div class="timeline">${(b.items || [])
+        .map((t) => `<div class="tl"><h4><span class="stage-tag">${t.tag}</span>${t.title}</h4>
+          <p><b>Agent：</b>${t.agent}</p><p class="me"><b>我：</b>${t.me || '——'}</p></div>`).join('')}</div>`;
+    case 'code':
+      return `<pre><code>${esc(b.text ?? '')}</code></pre>`;
+    case 'tools':
+      return renderTools();
+    default:
+      return `<div class="callout warn"><span class="ct">未知内容块</span><p>类型：${esc(b.type)}</p></div>`;
+  }
+}
+
+function renderTools() {
+  const rows = state.tools.map((t) => {
+    const st = STATUS[t.status] || STATUS.todo;
+    if (!state.editing) {
+      return `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.kind)}</td><td>${esc(t.usage)}</td>
+        <td><span class="tag ${st.cls}">${st.label}</span></td></tr>`;
+    }
+    return `<tr data-tool="${t.id}">
+      <td><div class="tools-edit-row"><input data-f="name" value="${esc(t.name)}" /></div></td>
+      <td><div class="tools-edit-row"><input data-f="kind" value="${esc(t.kind)}" /></div></td>
+      <td><div class="tools-edit-row"><input data-f="usage" value="${esc(t.usage)}" /></div></td>
+      <td><div class="tools-edit-row">
+        <select data-f="status">
+          ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${t.status === k ? 'selected' : ''}>${v.label}</option>`).join('')}
+        </select>
+        <button class="btn" data-act="save-tool" title="保存这一行">💾</button>
+        <button class="btn danger" data-act="del-tool" title="删除这一行">🗑</button>
+      </div></td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>工具 / 能力</th><th>类型</th><th>在本次任务中做了什么</th><th>使用情况</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function renderSectionEdit(sec) {
+  const blocks = sec.blocks || [];
+  const parts = blocks.map((b, i) => {
+    if (b.type === 'p') {
+      return `<div class="edit-block"><label class="muted">段落 ${i + 1}（支持 &lt;strong&gt; &lt;a&gt; 等简单 HTML）</label>
+        <textarea class="edit-area" data-bi="${i}">${esc(b.text || '')}</textarea></div>`;
+    }
+    if (b.type === 'ul') {
+      return `<div class="edit-block"><label class="muted">列表 ${i + 1}（一行一条）</label>
+        <textarea class="edit-area" data-bi="${i}" data-t="ul">${esc((b.items || []).join('\n'))}</textarea></div>`;
+    }
+    return `<div class="callout"><span class="ct">只读组件：${esc(b.type)}</span>
+      <p>这类内容由数据结构生成（表格 / 流程图 / 时间线），请在数据层修改，或在页面上用「工具行」按钮维护工具表。</p></div>`;
+  }).join('');
+
+  return `<div class="edit-block"><label class="muted">章节标题</label>
+      <input class="edit-area" data-f="title" value="${esc(sec.title)}" /></div>
+    <div class="edit-block"><label class="muted">一句话摘要</label>
+      <input class="edit-area" data-f="summary" value="${esc(sec.summary)}" /></div>
+    ${parts}
+    <div class="edit-actions">
+      <button class="btn primary" data-act="save-section" data-anchor="${sec.anchor}">💾 保存并同步</button>
+      <button class="btn" data-act="cancel-section">取消</button>
+      <button class="btn danger" data-act="del-section" data-anchor="${sec.anchor}">🗑 删除本章</button>
+    </div>`;
+}
+
+function renderSections() {
+  const article = $('#doc');
+  article.innerHTML = state.sections.map((sec) => {
+    const editingThis = state.editing && state.editingSection === sec.anchor;
+    const body = editingThis
+      ? renderSectionEdit(sec)
+      : `${sec.summary ? `<p class="sec-summary">${sec.summary}</p>` : ''}${(sec.blocks || []).map(renderBlock).join('')}`;
+    const tools = state.editing && !editingThis
+      ? `<span class="sec-tools"><button class="btn" data-act="edit-section" data-anchor="${sec.anchor}">✏️ 编辑本章</button></span>`
+      : '';
+    return `<section class="card" id="${esc(sec.anchor)}" data-anchor="${esc(sec.anchor)}">
+      <h2><span class="num">${esc(sec.num)}</span><span>${esc(sec.title)}</span>${tools}</h2>${body}</section>`;
+  }).join('');
+
+  const toc = $('#tocList');
+  toc.innerHTML = state.sections
+    .map((s) => `<li><a href="#${esc(s.anchor)}" data-target="${esc(s.anchor)}">${esc(s.title)}</a></li>`)
+    .join('');
+
+  const nav = $('#topNav');
+  nav.innerHTML = state.sections.slice(0, 6)
+    .map((s) => `<a href="#${esc(s.anchor)}">${esc(s.title)}</a>`).join('');
+
+  rewireArticle();
+  syncTocActive();
+}
+
+/** 章节内的按钮/输入事件（每次渲染后重新绑定） */
+function rewireArticle() {
+  $$('#doc [data-act]').forEach((btn) => {
+    btn.onclick = async () => {
+      const act = btn.dataset.act;
+      try {
+        if (act === 'edit-section') {
+          state.editingSection = btn.dataset.anchor;
+          renderSections();
+          window.scrollTo({ top: $("#" + CSS.escape(btn.dataset.anchor)).offsetTop - 80, behavior: 'smooth' });
+        } else if (act === 'cancel-section') {
+          state.editingSection = null;
+          renderSections();
+        } else if (act === 'save-section') {
+          await saveSection(btn.dataset.anchor);
+        } else if (act === 'del-section') {
+          if (!confirm('确定删除这一章？删除后所有打开的页面都会同步消失。')) return;
+          state.editingSection = null;
+          await api(`/api/sections/${btn.dataset.anchor}`, { method: 'DELETE' });
+          toast('章节已删除');
+        } else if (act === 'save-tool') {
+          const row = btn.closest('tr');
+          const id = row.dataset.tool;
+          const patch = {};
+          $$('input,select', row).forEach((el) => { patch[el.dataset.f] = el.value; });
+          await api(`/api/tools/${id}`, { method: 'PUT', body: patch });
+          toast('工具行已保存');
+        } else if (act === 'del-tool') {
+          const row = btn.closest('tr');
+          if (!confirm('删除这一行工具？')) return;
+          await api(`/api/tools/${row.dataset.tool}`, { method: 'DELETE' });
+          toast('工具行已删除');
+        }
+      } catch (e) {
+        toast(e.message || '操作失败');
+      }
+    };
+  });
+}
+
+async function saveSection(anchor) {
+  const sec = state.sections.find((s) => s.anchor === anchor);
+  const card = $(`#doc section[data-anchor="${CSS.escape(anchor)}"]`);
+  const blocks = JSON.parse(JSON.stringify(sec.blocks || []));
+  $$('textarea[data-bi]', card).forEach((ta) => {
+    const i = Number(ta.dataset.bi);
+    if (ta.dataset.t === 'ul') blocks[i] = { ...blocks[i], items: ta.value.split('\n').map((s) => s.trim()).filter(Boolean) };
+    else blocks[i] = { ...blocks[i], text: ta.value };
+  });
+  const title = $('input[data-f="title"]', card)?.value ?? sec.title;
+  const summary = $('input[data-f="summary"]', card)?.value ?? sec.summary;
+  state.editingSection = null;                       // 先收起编辑表单，再保存（两种模式都不残留）
+  await api(`/api/sections/${anchor}`, { method: 'PUT', body: { title, summary, blocks } });
+  toast(STATIC ? '已保存到本浏览器（点横幅里的「导出 data.js」可同步给别人）' : '已保存到数据库，并同步给所有页面');
+}
+
+/* ---------------------------------------------------------- 数据 → 页面 */
+function renderMeta() {
+  const m = state.meta;
+  document.title = `${m.title || 'AI Agent 使用报告'} · ${m.author || 'pb'}（动态站）`;
+  $('#brandTitle').textContent = m.title || 'AI Agent 使用报告';
+  $('#brandAuthor').textContent = '· ' + (m.author || 'pb');
+  $('#heroEyebrow').textContent = `${m.course || '人工智能概论'} · 课程作业 · 动态网页`;
+  $('#heroTitle').innerHTML = `${esc(m.title || 'AI Agent 使用报告').replace(/使用报告$/, '')}<em>使用报告</em>`;
+  $('#heroLead').textContent = m.subtitle || '';
+  $('#heroChips').innerHTML = [
+    ['作者', m.author], ['课程', m.course], ['班级', m.klass], ['日期', m.date], ['版本', m.version],
+  ].filter(([, v]) => v).map(([k, v]) => `<span class="chip">${esc(k)} <b>${esc(v)}</b></span>`).join('');
+  $('#footLeft').textContent = `© 2026 ${m.author || 'pb'} · ${m.course || ''}课程作业 · ${m.title || 'AI Agent 使用报告'}`;
+}
+
+function renderStats() {
+  const s = state.stats || {};
+  const set = (id, v, animate) => {
+    const el = $(id);
+    if (!el) return;
+    const old = el.textContent;
+    el.textContent = v ?? '–';
+    const cell = el.closest('.live-cell');           // 顶部按钮不在看板里，可能是 null
+    if (animate && cell && old !== String(v) && old !== '–') {
+      cell.classList.add('bump');
+      setTimeout(() => cell.classList.remove('bump'), 220);
+    }
+  };
+  set('#lvVisits', s.visits); set('#lvToday', s.visitsToday);
+  set('#lvLikes', s.likes, true); set('#lvComments', s.comments, true); set('#lvSections', s.sections);
+  set('#likeCount', s.likes, true); set('#commentCount', s.comments, true);
+
+  /* 近 7 日柱状图（纯手绘 SVG，不引图表库） */
+  const svg = $('#visitChart');
+  const data = s.last7 || [];
+  if (!data.length) { svg.innerHTML = ''; return; }
+  const max = Math.max(...data.map((d) => d.count), 1);
+  const w = 220 / data.length;
+  svg.innerHTML = data.map((d, i) => {
+    const h = Math.max(2, (d.count / max) * 46);
+    return `<rect x="${(i * w + w * 0.18).toFixed(1)}" y="${(54 - h).toFixed(1)}"
+      width="${(w * 0.64).toFixed(1)}" height="${h.toFixed(1)}" rx="2">
+      <title>${d.day}：${d.count} 次</title></rect>`;
+  }).join('');
+}
+
+function renderComments() {
+  const list = $('#commentList');
+  if (!state.comments.length) {
+    list.innerHTML = '<p class="muted">还没有留言 —— 你可以是第一个。</p>';
+    return;
+  }
+  list.innerHTML = state.comments.map((c) => `<div class="comment" data-cid="${c.id}">
+      <div class="c-head"><span class="c-author">${esc(c.author)}</span><span class="c-time">${fmtTime(c.created_at)}</span></div>
+      <div class="c-body">${esc(c.content)}</div>
+      ${state.editing ? `<button class="c-del" data-del="${c.id}">删除</button>` : ''}
+    </div>`).join('');
+  $$('[data-del]', list).forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm('删除这条留言？')) return;
+      try { await api(`/api/comments/${b.dataset.del}`, { method: 'DELETE' }); toast('留言已删除'); }
+      catch (e) { toast(e.message); }
+    };
+  });
+}
+
+/** 重新渲染整页（各自兜底：某一块出错也不至于整页空掉） */
+function rerender() {
+  const safe = (name, fn) => { try { fn(); } catch (err) { console.error('[渲染失败]', name, err); } };
+  safe('meta', renderMeta);
+  safe('sections', renderSections);
+  safe('stats', renderStats);
+  safe('comments', renderComments);
+  safe('scroll', onScroll);
+}
+
+/* ---------------------------------------------------------- 拉数据 */
+async function loadAll({ silent = false } = {}) {
+  if (STATIC) {
+    const saved = localLoad();
+    if (saved && saved.sections) {
+      state.meta = saved.meta || {}; state.sections = saved.sections; state.tools = saved.tools || [];
+      state.comments = saved.comments || []; state.stats = { ...(state.stats || {}), likes: saved.likes || 0 };
+    } else {
+      localReset();
+    }
+    rerender();
+    return;
+  }
+
+  let rep, cmt;
+  try {
+    [rep, cmt] = await Promise.all([api('/api/report'), api('/api/comments')]);
+  } catch (e) {
+    $('#doc').innerHTML = `<section class="card"><h2><span class="num">!</span><span>读取失败</span></h2>
+      <div class="callout warn"><span class="ct">无法从服务端取回数据</span><p>${esc(e.message)}</p>
+      <p>请确认服务已在运行：<code>node server.js</code>，然后刷新页面。</p></div></section>`;
+    return;
+  }
+  state.meta = rep.meta; state.sections = rep.sections; state.tools = rep.tools; state.stats = rep.stats;
+  state.comments = cmt.comments;
+  rerender();
+  if (!silent) state.loading = false;
+}
+
+/* ---------------------------------------------------------- SSE 实时 */
+function connectSSE() {
+  const pill = $('#livePill');
+  if (STATIC) {
+    pill.className = 'live-pill';
+    $('#liveText').textContent = '静态快照（无服务端）';
+    return;
+  }
+  const es = new EventSource('/api/events');
+
+  es.addEventListener('ready', () => {
+    pill.className = 'live-pill on';
+    $('#liveText').textContent = '实时连接中';
+  });
+  es.addEventListener('changed', async (ev) => {
+    let scope = {};
+    try { scope = JSON.parse(ev.data); } catch {}
+    if (state.editingSection) {
+      // 正在编辑，别把表单冲掉
+      state.hasUpdate = true;
+      toast('服务端有新的改动 —— 点这里刷新', { action: true, ms: 6000, onClick: () => location.reload() });
+      return;
+    }
+    await loadAll({ silent: true });
+    if (scope.scope !== 'presence') flash(scope.scope);
+  });
+  es.addEventListener('presence', async (ev) => {
+    try { state.stats = JSON.parse(ev.data).stats; renderStats(); } catch {}
+  });
+  es.onerror = () => {
+    pill.className = 'live-pill off';
+    $('#liveText').textContent = '连接断开，重试中';
+  };
+}
+
+function flash(scope) {
+  const map = { tools: '工具清单已更新', meta: '报告信息已更新', likes: '有人点了赞', comments: '有人留了言', reset: '内容已恢复出厂设置' };
+  const msg = map[scope];
+  if (msg) toast(msg);
+}
+
+/* ---------------------------------------------------------- 编辑模式 */
+function askToken() {
+  return new Promise((resolve) => {
+    const modal = $('#tokenModal'), input = $('#tokenInput'), err = $('#tokenErr');
+    modal.hidden = false; err.hidden = true; input.value = ''; input.focus();
+    const done = (val) => { modal.hidden = true; resolve(val); };
+    $('#tokenOk').onclick = () => {
+      const v = input.value.trim();
+      if (!v) { err.textContent = '请输入口令'; err.hidden = false; return; }
+      done(v);
+    };
+    $('#tokenCancel').onclick = () => done(null);
+    input.onkeydown = (e) => { if (e.key === 'Enter') $('#tokenOk').click(); };
+  });
+}
+
+async function setEditing(on) {
+  if (on && !STATIC) {
+    let token = sessionStorage.getItem('aar-token');
+    if (!token) {
+      token = await askToken();
+      if (!token) return;
+    }
+    const r = await api('/api/verify-token', { method: 'POST', body: { token } }).catch(() => ({ ok: false }));
+    if (!r.ok) {
+      sessionStorage.removeItem('aar-token');
+      const err = $('#tokenErr');
+      $('#tokenModal').hidden = false; err.textContent = '口令不正确，请重试'; err.hidden = false;
+      return;
+    }
+    sessionStorage.setItem('aar-token', token);
+  }
+  state.editing = on;
+  state.editingSection = null;
+  document.body.classList.toggle('editing', on);
+  $('#btnEdit').setAttribute('aria-pressed', String(on));
+  $('#btnEdit').querySelector('.lbl').textContent = on ? '退出编辑' : '编辑模式';
+  $('#btnAddSection').hidden = !on;
+  $('#btnReset').hidden = !on;
+  renderSections(); renderComments();
+  toast(on ? '编辑模式已开启：点章节上的「编辑本章」' : '已退出编辑模式');
+}
+
+/* ---------------------------------------------------------- 事件绑定 */
+/* 用 on() 绑定：万一某个元素不存在，只打印警告，不会让整个脚本挂掉 */
+const on = (sel, handler, ev = 'onclick') => {
+  const el = $(sel);
+  if (!el) { console.warn('[缺少元素]', sel); return; }
+  el[ev] = handler;
+};
+
+on('#btnLike', async () => {
+  try { const r = await api('/api/like', { method: 'POST' }); state.stats.likes = r.likes; renderStats(); toast('感谢点赞！'); }
+  catch (e) { toast(e.message); }
+});
+on('#btnPrint', () => window.print());
+on('#btnEdit', () => setEditing(!state.editing));
+on('#btnEdit2', () => setEditing(true));
+on('#ebExit', () => setEditing(false));
+
+on('#ebAddTool', async () => {
+  try {
+    await api('/api/tools', { method: 'POST', body: { name: '新的工具', kind: '工具', usage: '点这里改成它的作用', status: 'todo' } });
+    toast('已新增一行，改完记得点 💾');
+  } catch (e) { toast(e.message); }
+});
+
+on('#btnAddSection', async () => {
+  const title = prompt('新章节标题：', '遇到的困难');
+  if (!title) return;
+  try {
+    const r = await api('/api/sections', { method: 'POST', body: { title, summary: '（点「编辑本章」补充内容）', blocks: [{ type: 'p', text: '在这里写点内容。' }] } });
+    state.editingSection = r.section.anchor;
+    toast('章节已创建，正在编辑');
+  } catch (e) { toast(e.message); }
+});
+
+on('#btnReset', async () => {
+  if (!confirm('恢复出厂内容？用 lib/seed.js 覆盖数据库里的所有内容（留言与访问统计也会被清空）。')) return;
+  try { await api('/api/reset', { method: 'POST' }); toast('已恢复初始内容'); } catch (e) { toast(e.message); }
+});
+
+/* 报告信息（作者/班级/日期）在线编辑 */
+const META_FIELDS = [
+  ['title', '报告标题'], ['subtitle', '副标题'], ['course', '课程名'], ['assignment', '作业名'],
+  ['author', '作者'], ['klass', '班级'], ['sno', '学号'], ['teacher', '指导老师'],
+  ['date', '完成日期'], ['version', '版本'],
+];
+on('#ebMeta', () => {
+  $('#metaForm').innerHTML = META_FIELDS.map(([k, label]) =>
+    `<label for="mf-${k}">${label}</label><input id="mf-${k}" data-k="${k}" value="${esc(state.meta[k] || '')}" />`).join('');
+  $('#metaModal').hidden = false;
+});
+on('#metaCancel', () => { $('#metaModal').hidden = true; });
+on('#metaSave', async () => {
+  const patch = {};
+  $$('#metaForm input').forEach((i) => { patch[i.dataset.k] = i.value; });
+  try {
+    await api('/api/meta', { method: 'PUT', body: patch });
+    $('#metaModal').hidden = true;
+    toast('报告信息已保存');
+  } catch (e) { toast(e.message); }
+});
+
+/* 留言 */
+on('#commentForm', async (e) => {
+  e.preventDefault();
+  const content = $('#cmtContent').value.trim();
+  if (!content) return;
+  try {
+    await api('/api/comments', { method: 'POST', body: { author: $('#cmtAuthor').value.trim() || '匿名', content } });
+    $('#cmtContent').value = '';
+    toast('留言已发表，正在广播给所有页面');
+  } catch (err) { toast(err.message); }
+}, 'onsubmit');
+
+/* 滚动相关 */
+const bar = $('#progressBar');
+function syncTocActive() {
+  const y = window.scrollY + 150;
+  let current = null;
+  state.sections.forEach((s) => {
+    const el = document.getElementById(s.anchor);
+    if (el && el.offsetTop <= y) current = s.anchor;
+  });
+  $$('#tocList a').forEach((a) => a.classList.toggle('is-active', a.dataset.target === current));
+}
+function onScroll() {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = (h > 0 ? Math.min(100, (window.scrollY / h) * 100) : 0) + '%';
+  document.body.classList.toggle('scrolled', window.scrollY > 400);
+  syncTocActive();
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', onScroll);
+on('#toTop', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.editing) setEditing(false); });
+
+/* ---------------------------------------------------------- 启动 */
+if (STATIC) {
+  try { mountStaticBanner(); } catch (e) { console.error('[横幅挂载失败]', e); }   // 别让横幅拖垮整页
+  const hint = $('#cmtHint');
+  if (hint) hint.textContent = '静态版：留言只保存在你自己的浏览器里（要真的留言请用服务端版）';
+  const lh = document.querySelector('.live-hint');
+  if (lh) lh.textContent = '下面是打包时的统计数据快照；「改一处、所有页面实时同步」需要服务端版';
+}
+loadAll().then(onScroll);
+connectSSE();
+
+</script>
+</body>
+</html>
