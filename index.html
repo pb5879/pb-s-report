@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AI Agent 使用报告 · pb（动态站）</title>
 <meta name="author" content="pb" />
-<meta name="description" content="人工智能概论课程作业：AI Agent 使用报告。数据库驱动的动态网页，实时同步、在线编辑、留言与点赞。" />
+<meta name="description" content="人工智能概论课程作业：AI Agent 使用报告。数据库驱动的动态网页，内容来自服务端、留言与点赞实时同步。" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
 <style>
 /* ============================================================
@@ -325,7 +325,6 @@ body.editing #toTop{bottom:86px}
     <div class="actions">
       <button class="btn" id="btnTheme" title="切换深色 / 浅色">🌗<span class="lbl">主题</span></button>
       <button class="btn" id="btnPrint" title="打印或另存为 PDF">🖨️<span class="lbl">打印/PDF</span></button>
-      <button class="btn primary" id="btnEdit" aria-pressed="false" title="需要编辑口令">✏️<span class="lbl">编辑模式</span></button>
     </div>
   </div>
 </header>
@@ -342,7 +341,6 @@ body.editing #toTop{bottom:86px}
         <a class="btn primary" href="#s0">📖 开始阅读</a>
         <button class="btn" id="btnLike">👍 点赞 <b id="likeCount">0</b></button>
         <a class="btn" href="#comments">💬 留言 <b id="commentCount">0</b></a>
-        <button class="btn" id="btnEdit2">✏️ 在线编辑</button>
       </div>
     </section>
 
@@ -372,12 +370,10 @@ body.editing #toTop{bottom:86px}
       <h4>目录</h4>
       <ol id="tocList"></ol>
       <div class="toc-note">
-        <b>这是动态站</b><br />
+        <b>本站是只读的</b><br />
         正文来自 <code>data/app.db</code>，由 <code>/api/report</code> 提供。<br />
-        点右上角「编辑模式」即可在线改内容（需要编辑口令）。
+        网站上不提供在线编辑入口；正文的修改在数据源完成，重新生成后同步即可。
       </div>
-      <button class="btn wide" id="btnAddSection" hidden>＋ 新增章节</button>
-      <button class="btn wide" id="btnReset" hidden>↺ 恢复出厂内容</button>
     </aside>
 
     <!-- ================= 正文（JS 渲染） ================= -->
@@ -416,45 +412,12 @@ body.editing #toTop{bottom:86px}
   </section>
 </main>
 
-<!-- ================= 编辑工具条 ================= -->
-<div class="editbar" id="editbar" role="toolbar" aria-label="编辑工具栏">
-  <span class="hint">✏️ 编辑模式：改完点保存，所有页面实时更新</span>
-  <button class="btn primary" id="ebAddTool">＋ 工具行</button>
-  <button class="btn" id="ebMeta">📝 报告信息</button>
-  <button class="btn" id="ebExit">✖ 退出编辑</button>
-</div>
-
-<!-- ================= 口令弹窗 ================= -->
-<div class="modal" id="tokenModal" hidden>
-  <div class="modal-box">
-    <h3>需要编辑口令</h3>
-    <p class="muted">正文存在服务端数据库里，只有输入正确口令的人才能修改 —— 这就是「作者保留编辑权」的实现方式。</p>
-    <input id="tokenInput" type="password" placeholder="请输入编辑口令" autocomplete="off" />
-    <p class="modal-err" id="tokenErr" hidden></p>
-    <div class="modal-foot">
-      <button class="btn primary" id="tokenOk">确定</button>
-      <button class="btn" id="tokenCancel">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 通用编辑弹窗 ================= -->
-<div class="modal" id="metaModal" hidden>
-  <div class="modal-box wide">
-    <h3>编辑报告信息</h3>
-    <div class="meta-form" id="metaForm"></div>
-    <div class="modal-foot">
-      <button class="btn primary" id="metaSave">保存</button>
-      <button class="btn" id="metaCancel">取消</button>
-    </div>
-  </div>
-</div>
-
+<!-- ================= 提示 ================= -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <button class="btn" id="toTop" title="回到顶部">↑</button>
 
 <script>
-/* 由 tools/build-static.mjs 于 2026-10-16T12:06:18.064Z 生成；改内容请改数据库后重新构建 */
+/* 由 tools/build-static.mjs 于 2026-10-16T12:20:37.459Z 生成；改内容请改数据库后重新构建 */
 window.__REPORT_DATA__ = {
   "meta": {
     "title": "AI Agent 使用报告",
@@ -467,7 +430,7 @@ window.__REPORT_DATA__ = {
   },
   "sections": [
     {
-      "id": 67,
+      "id": 94,
       "anchor": "s0",
       "num": "00",
       "title": "报告信息",
@@ -510,10 +473,10 @@ window.__REPORT_DATA__ = {
         }
       ],
       "position": 0,
-      "updated_at": "2026-10-16T12:06:17.964Z"
+      "updated_at": "2026-10-16T12:20:37.316Z"
     },
     {
-      "id": 68,
+      "id": 95,
       "anchor": "s1",
       "num": "01",
       "title": "摘要",
@@ -521,7 +484,7 @@ window.__REPORT_DATA__ = {
       "blocks": [
         {
           "type": "p",
-          "text": "本文记录了一次真实的人机协作：使用具备工具调用能力的 AI Agent 完成一份课程报告的<strong>动态网站</strong>。报告首先说明 AI Agent 与普通对话式 AI 的区别，接着列出本次使用的智能体工具及其分工，然后按阶段还原从「读懂作业要求」到「上线一个可交互站点」的完整流程，并重点说明为了让作者随时可以修改内容而设计的「在线编辑 + 实时同步」机制。"
+          "text": "本文记录了一次真实的人机协作：使用具备工具调用能力的 AI Agent 完成一份课程报告的<strong>动态网站</strong>。报告首先说明 AI Agent 与普通对话式 AI 的区别，接着列出本次使用的智能体工具及其分工，然后按阶段还原从「读懂作业要求」到「上线一个可交互站点」的完整流程，并说明「内容与页面分离」这一结构选择带来的好处。"
         },
         {
           "type": "p",
@@ -535,10 +498,10 @@ window.__REPORT_DATA__ = {
         }
       ],
       "position": 1,
-      "updated_at": "2026-10-16T12:06:17.967Z"
+      "updated_at": "2026-10-16T12:20:37.319Z"
     },
     {
-      "id": 69,
+      "id": 96,
       "anchor": "s2",
       "num": "02",
       "title": "认识 AI Agent",
@@ -610,7 +573,7 @@ window.__REPORT_DATA__ = {
         },
         {
           "type": "p",
-          "text": "这一「思考—行动—观察」的循环来自 ReAct 等研究工作<sup><a href=\"#s10\">[1]</a></sup>，也是本站所用 Agent 运行方式的基本骨架：它每走一步都要先想做什么、调用一次工具、看结果，再决定下一步。"
+          "text": "这一「思考—行动—观察」的循环来自 ReAct 等研究工作，也是本站所用 Agent 运行方式的基本骨架：它每走一步都要先想做什么、调用一次工具、看结果，再决定下一步。"
         },
         {
           "type": "ul",
@@ -623,10 +586,10 @@ window.__REPORT_DATA__ = {
         }
       ],
       "position": 2,
-      "updated_at": "2026-10-16T12:06:17.969Z"
+      "updated_at": "2026-10-16T12:20:37.321Z"
     },
     {
-      "id": 70,
+      "id": 97,
       "anchor": "s3",
       "num": "03",
       "title": "使用的 Agent 工具",
@@ -636,7 +599,7 @@ window.__REPORT_DATA__ = {
           "type": "callout",
           "tone": "warn",
           "title": "请按你的真实情况核对下表",
-          "text": "下面的工具清单存在数据库的 tools 表里，网页上的「编辑模式」可以直接增删改行 —— 改完刷新一下，表格就变了。带「本项目使用」的是这次真正用到的；「可用未使用」表示环境里具备、本次没启用；「待你确认」需要你按实际情况填。"
+          "text": "下面的工具清单存在数据库的 tools 表里，页面上的表格是渲染出来的 —— 改数据源、重新生成，表格就变了。带「本项目使用」的是这次真正用到的；「可用未使用」表示环境里具备、本次没启用；「待你确认」需要你按实际情况填。"
         },
         {
           "type": "tools"
@@ -650,7 +613,7 @@ window.__REPORT_DATA__ = {
           "steps": [
             {
               "t": "我（pb）",
-              "d": "提出要求：报告网站、署名、保留编辑权"
+              "d": "提出要求：报告网站、署名、内容要点"
             },
             {
               "t": "主控 Agent",
@@ -668,10 +631,10 @@ window.__REPORT_DATA__ = {
         }
       ],
       "position": 3,
-      "updated_at": "2026-10-16T12:06:17.971Z"
+      "updated_at": "2026-10-16T12:20:37.323Z"
     },
     {
-      "id": 71,
+      "id": 98,
       "anchor": "s4",
       "num": "04",
       "title": "项目流程",
@@ -709,12 +672,12 @@ window.__REPORT_DATA__ = {
               "tag": "S0",
               "title": "需求接收",
               "agent": "读取用户消息，识别出这是一份「人工智能概论」课程作业，而非随手写个页面。",
-              "me": "说明作业要求、作者署名 pb、需要保留编辑权。"
+              "me": "说明作业要求、作者署名 pb、内容要点。"
             },
             {
               "tag": "S1",
               "title": "约束提取与目标澄清",
-              "agent": "把口语化需求翻译成可执行的约束清单：交付物、署名、内容要点、可编辑、可提交。",
+              "agent": "把口语化需求翻译成可执行的约束清单：交付物、署名、内容要点、便于后续修改、可提交。",
               "me": "确认范围；并提出「不要静态网页」，把方向从单文件报告改成动态网站。"
             },
             {
@@ -732,13 +695,13 @@ window.__REPORT_DATA__ = {
             {
               "tag": "S4",
               "title": "后端实现",
-              "agent": "编写数据库层（建表/种子/增删改查）、HTTP 服务（静态资源 + REST API + SSE 广播 + 编辑口令校验）。",
+              "agent": "编写数据库层（建表/种子/增删改查）、HTTP 服务（静态资源 + REST API + SSE 广播）。",
               "me": "——"
             },
             {
               "tag": "S5",
               "title": "前端实现",
-              "agent": "编写动态前端：fetch 取数渲染、在线编辑、留言板、点赞、访问统计图表、SSE 自动刷新。",
+              "agent": "编写动态前端：fetch 取数渲染、留言板、点赞、访问统计图表、SSE 自动刷新。",
               "me": "提出风格偏好与修改意见。"
             },
             {
@@ -798,10 +761,10 @@ window.__REPORT_DATA__ = {
         }
       ],
       "position": 4,
-      "updated_at": "2026-10-16T12:06:17.973Z"
+      "updated_at": "2026-10-16T12:20:37.325Z"
     },
     {
-      "id": 72,
+      "id": 99,
       "anchor": "s5",
       "num": "05",
       "title": "技术实现",
@@ -815,7 +778,7 @@ window.__REPORT_DATA__ = {
           "type": "ul",
           "items": [
             "<strong>数据线：</strong>报告正文、工具清单、留言、点赞、访问日志全部存在 <code>data/app.db</code>（SQLite 单文件数据库）。页面不含有任何写死的正文。",
-            "<strong>请求线：</strong>浏览器用 <code>fetch()</code> 调 REST API 取数并渲染；修改内容用 <code>PUT /api/sections/:anchor</code> 写回数据库，需要编辑口令。",
+            "<strong>请求线：</strong>浏览器用 <code>fetch()</code> 调 REST API 取数并渲染；写接口（改章节、改工具表）只在服务端保留，需要口令，网站上不暴露入口。",
             "<strong>推送线：</strong>服务端用 SSE（Server-Sent Events）维持长连接，任何一处数据变化都会广播给所有打开的页面，实现「一边改、到处自动更新」。"
           ]
         },
@@ -915,132 +878,20 @@ window.__REPORT_DATA__ = {
           "type": "callout",
           "tone": "info",
           "title": "两种交付形态（同一套前端代码）",
-          "text": "<strong>① 服务端动态版</strong>：在本机双击 <code>start.cmd</code> 启动，内容存在 SQLite 里，可在线编辑、留言、点赞，改动通过 SSE 实时推送给所有打开的页面 —— 也就是你现在看到的这一版（左上角会显示「实时连接中」）。<br /><strong>② 静态快照版</strong>：用 <code>node tools/build-static.mjs</code> 把数据库内容导出成 <code>data.js</code> 快照 + 同一套前端，可直接托管到 GitHub Pages，<strong>任何人凭一条链接就能打开，不需要谁开着电脑</strong>。代价是编辑、留言、点赞只保存在浏览器本地（页面顶部会明确横幅提示）。<br />两种形态共用同一份前端代码：页面启动时会自动判断自己跑在哪种模式，无需改代码、无需重新构建。这种「同一套代码、两种运行环境」的取舍，也是本次实践里比较有意思的一部分。"
+          "text": "<strong>① 服务端版</strong>：在本机双击 <code>start.cmd</code> 启动，内容存在 SQLite 里，留言与点赞实时同步，改动通过 SSE 推送给所有打开的页面（左上角会显示「实时连接中」）。<br /><strong>② 静态快照版</strong>：用 <code>node tools/build-static.mjs</code> 把数据库内容导出成 <code>data.js</code> 快照 + 同一套前端，可直接托管到 GitHub Pages，<strong>任何人凭一条链接就能打开，不需要谁开着电脑</strong>。代价是留言、点赞只保存在浏览器本地（页面顶部有横幅说明）。<br />两种形态共用同一份前端代码：页面启动时会自动判断自己跑在哪种模式，无需改代码、无需重新构建。网站上只做只读展示，正文的修改在数据源（数据库 / 种子文件）完成，重新生成即可同步 —— 这种「内容与页面分离」的结构，也是本次实践里比较有意思的一部分。"
         },
         {
           "type": "code",
-          "text": "// server.js 节选：一次写操作的完整链路\ncase \"PUT\": {\n  requireEditToken(req);                 // 1. 口令校验，保护作者编辑权\n  const patch = await readJSON(req);     // 2. 读取前端提交的修改\n  const section = db.updateSection(anchor, patch);\n  broadcast(\"changed\", { anchor });      // 3. 推给所有在线页面\n  return json(res, 200, { ok: true, section });\n}"
+          "text": "// server.js 节选：一次写操作的完整链路（写接口只服务端保留，页面不暴露入口）\ncase \"PUT\": {\n  requireEditToken(req);                 // 1. 口令校验\n  const patch = await readJSON(req);     // 2. 读取提交的修改\n  const section = db.updateSection(anchor, patch);\n  broadcast(\"changed\", { anchor });      // 3. 推给所有在线页面\n  return json(res, 200, { ok: true, section });\n}"
         }
       ],
       "position": 5,
-      "updated_at": "2026-10-16T12:06:17.975Z"
+      "updated_at": "2026-10-16T12:20:37.327Z"
     },
     {
-      "id": 73,
+      "id": 100,
       "anchor": "s6",
       "num": "06",
-      "title": "「保留编辑权」是怎么做到的",
-      "summary": "三条互不冲突的修改通道，作者随时说了算。",
-      "blocks": [
-        {
-          "type": "p",
-          "text": "作业要求里明确提到要保留我的编辑权利。静态版的做法是「改文件再另存」，动态版把它升级成<strong>在线编辑 + 数据库持久化 + 实时同步</strong>。"
-        },
-        {
-          "type": "table",
-          "head": [
-            "入口",
-            "怎么操作",
-            "适合什么时候用"
-          ],
-          "rows": [
-            [
-              "① 网页在线编辑",
-              "点右上角「✏️ 编辑模式」→ 输入编辑口令 → 直接改标题、摘要、段落；工具表可增删改行",
-              "随时补内容、改措辞，改完所有人立刻看到"
-            ],
-            [
-              "② 直接改数据库",
-              "用任意 SQLite 工具打开 data/app.db，改完刷新页面即可",
-              "批量修改、导入导出数据"
-            ],
-            [
-              "③ 改种子数据",
-              "编辑 lib/seed.js 后运行「重置数据.cmd」，恢复成你想要的初始内容",
-              "想要一份「干净版」交作业"
-            ]
-          ]
-        },
-        {
-          "type": "callout",
-          "tone": "ok",
-          "title": "编辑口令",
-          "text": "服务端版的口令写在 <code>lib/seed.js</code> 里，也可以在启动时用环境变量 <code>EDIT_TOKEN</code> 覆盖；口令不会下发给浏览器，服务端用常量时间比较来校验（避免计时侧信道）。只有输入正确口令的人才能改内容 —— 这就是「作者保留编辑权」的技术实现：别人可以看、可以留言、可以点赞，但改不了正文。<br />你现在看到的这个<strong>静态托管版没有服务端</strong>，所以编辑模式不需要口令，改动只保存在你自己的浏览器里。"
-        },
-        {
-          "type": "callout",
-          "tone": "info",
-          "title": "为什么不做成登录系统",
-          "text": "一个人用的课程作业，做一整套账号体系性价比很低。用一个口令 + 服务端校验，已经能表达「谁有权改」这件事，代码量还不到 20 行。"
-        }
-      ],
-      "position": 6,
-      "updated_at": "2026-10-16T12:06:17.977Z"
-    },
-    {
-      "id": 74,
-      "anchor": "s7",
-      "num": "07",
-      "title": "提示词示例与拆解",
-      "summary": "同一个 Agent，提示词越清楚，返工越少。",
-      "blocks": [
-        {
-          "type": "code",
-          "text": "人工智能概论的老师布置了一个任务，现在我需要你给我做一个网页。\n内容是 AI Agent 的使用报告，写清网页作者是 pb、使用的 agent 工具、\n以及项目流程等，保留我的编辑权利。"
-        },
-        {
-          "type": "p",
-          "text": "这句话加上后续一句「能不能不是静态网页」，就把需求从「交一份文档」改成了「做一个能跑的系统」。第二句才是真正的分水岭 —— 它没有描述任何技术细节，只表达了「不够」的感觉，剩下的选型由 Agent 给出方案。"
-        },
-        {
-          "type": "table",
-          "head": [
-            "要素",
-            "原文中的对应内容",
-            "对 Agent 的作用"
-          ],
-          "rows": [
-            [
-              "场景",
-              "「人工智能概论的老师布置了一个任务」",
-              "决定语气、深度与读者对象"
-            ],
-            [
-              "交付物",
-              "「做一个网页」",
-              "确定产出格式，而不是作文或 PPT"
-            ],
-            [
-              "内容要点",
-              "「作者是 pb」「使用的 agent 工具」「项目流程」",
-              "直接给出章节骨架，不需要 Agent 猜"
-            ],
-            [
-              "附加约束",
-              "「保留我的编辑权利」",
-              "要求交付物必须可再修改，直接催生了第 06 节的编辑机制"
-            ],
-            [
-              "追加要求",
-              "「能不能不是静态网页」",
-              "从单文件报告升级为前后端动态站点"
-            ]
-          ]
-        },
-        {
-          "type": "callout",
-          "tone": "info",
-          "title": "可以改进的地方",
-          "text": "如果一开始就说清「要有后端和数据库」「要能演示给别人看」「要能在答辩时现场改内容」，Agent 会一次到位，少一轮返工。这也是本次实践最大的体会：<strong>与 Agent 协作的瓶颈往往不在模型能力，而在需求表达的清晰度。</strong>"
-        }
-      ],
-      "position": 7,
-      "updated_at": "2026-10-16T12:06:17.979Z"
-    },
-    {
-      "id": 75,
-      "anchor": "s8",
-      "num": "08",
       "title": "效果评估、局限与声明",
       "summary": "收获、风险与学术诚信声明。",
       "blocks": [
@@ -1090,13 +941,13 @@ window.__REPORT_DATA__ = {
           "text": "本报告由作者 pb 使用 AI Agent 辅助完成：AI 参与了资料整理、内容起草、前后端编码与自检。全部内容经作者阅读、核对与修改，文中的观点、事实与最终提交版本由作者本人负责。使用 AI 的过程已在本文中如实记录，供课程考核参考。"
         }
       ],
-      "position": 8,
-      "updated_at": "2026-10-16T12:06:17.981Z"
+      "position": 6,
+      "updated_at": "2026-10-16T12:20:37.329Z"
     },
     {
-      "id": 76,
-      "anchor": "s9",
-      "num": "09",
+      "id": 101,
+      "anchor": "s7",
+      "num": "07",
       "title": "总结与展望",
       "summary": "这次作业到底学到了什么。",
       "blocks": [
@@ -1113,68 +964,13 @@ window.__REPORT_DATA__ = {
           "text": "后续如果继续做，我希望往三个方向走：一是加上用户账号，让每个同学都能维护自己的一页报告；二是接入真实模型接口，在页面里直接和 Agent 对话；三是把访问数据做成更完整的看板，用真实数据讲「有多少人看过这份作业」。"
         }
       ],
-      "position": 9,
-      "updated_at": "2026-10-16T12:06:17.983Z"
-    },
-    {
-      "id": 77,
-      "anchor": "s10",
-      "num": "10",
-      "title": "附录与参考资料",
-      "summary": "交付清单与参考来源。",
-      "blocks": [
-        {
-          "type": "table",
-          "head": [
-            "文件",
-            "说明"
-          ],
-          "rows": [
-            [
-              "server.js",
-              "HTTP 服务：静态资源 + REST API + SSE 实时推送 + 编辑口令"
-            ],
-            [
-              "lib/db.js",
-              "SQLite 数据层：建表、种子、章节/工具/留言/点赞/访问统计"
-            ],
-            [
-              "lib/seed.js",
-              "初始内容（改这里 + 重置数据 = 恢复出厂设置）"
-            ],
-            [
-              "public/",
-              "前端：index.html / styles.css / app.js（原生 JS，无框架）"
-            ],
-            [
-              "data/app.db",
-              "SQLite 数据库文件，首次运行自动创建"
-            ],
-            [
-              "start.cmd",
-              "双击启动，自动打开浏览器"
-            ]
-          ]
-        },
-        {
-          "type": "ul",
-          "items": [
-            "Yao S. 等. <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>. arXiv:2210.03629, 2022. <a href=\"https://arxiv.org/abs/2210.03629\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2210.03629</a>",
-            "Schick T. 等. <em>Toolformer: Language Models Can Teach Themselves to Use Tools</em>. arXiv:2302.04761, 2023. <a href=\"https://arxiv.org/abs/2302.04761\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2302.04761</a>",
-            "Shinn N. 等. <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em>. arXiv:2303.11366, 2023. <a href=\"https://arxiv.org/abs/2303.11366\" target=\"_blank\" rel=\"noreferrer\">arxiv.org/abs/2303.11366</a>",
-            "Anthropic. <em>Building Effective Agents</em>. <a href=\"https://www.anthropic.com/engineering/building-effective-agents\" target=\"_blank\" rel=\"noreferrer\">anthropic.com/engineering/building-effective-agents</a>",
-            "Node.js 官方文档：<em>node:sqlite</em> 内置数据库模块。 <a href=\"https://nodejs.org/api/sqlite.html\" target=\"_blank\" rel=\"noreferrer\">nodejs.org/api/sqlite.html</a>",
-            "MDN：<em>Server-sent events</em>（本项目实时推送所用协议）。 <a href=\"https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events\" target=\"_blank\" rel=\"noreferrer\">developer.mozilla.org</a>"
-          ]
-        }
-      ],
-      "position": 10,
-      "updated_at": "2026-10-16T12:06:17.985Z"
+      "position": 7,
+      "updated_at": "2026-10-16T12:20:37.331Z"
     }
   ],
   "tools": [
     {
-      "id": 76,
+      "id": 114,
       "name": "DeepSeek Harness（DSH）桌面客户端",
       "kind": "宿主 / 运行时",
       "usage": "承载本次全部会话：把大模型接到工具、插件、技能、子代理上，并提供审批与文件沙箱。",
@@ -1182,7 +978,7 @@ window.__REPORT_DATA__ = {
       "position": 0
     },
     {
-      "id": 77,
+      "id": 115,
       "name": "主控 Agent（Captain）",
       "kind": "规划与执行",
       "usage": "解析作业要求 → 拆出内容/设计/后端/前端/自检几块 → 逐步执行并汇总。",
@@ -1190,7 +986,7 @@ window.__REPORT_DATA__ = {
       "position": 1
     },
     {
-      "id": 78,
+      "id": 116,
       "name": "文件工具（读写 / 精确编辑 / 检索）",
       "kind": "工具",
       "usage": "读取工作区、按关键字搜索、写出并修改本站的源码文件。",
@@ -1198,7 +994,7 @@ window.__REPORT_DATA__ = {
       "position": 2
     },
     {
-      "id": 79,
+      "id": 117,
       "name": "命令行（PowerShell 7）",
       "kind": "工具",
       "usage": "探测运行环境、启动与验证 Node 服务、定位 DSH 自带 node。",
@@ -1206,7 +1002,7 @@ window.__REPORT_DATA__ = {
       "position": 3
     },
     {
-      "id": 80,
+      "id": 118,
       "name": "无头浏览器（渲染截图）",
       "kind": "工具",
       "usage": "把成品页面真实渲染成图片并核对排版，而不是「写完就交」。",
@@ -1214,7 +1010,7 @@ window.__REPORT_DATA__ = {
       "position": 4
     },
     {
-      "id": 81,
+      "id": 119,
       "name": "图像理解（截图分析 / OCR）",
       "kind": "工具",
       "usage": "分析渲染截图与打印 PDF 的文字层，确认没有样式错乱、内容被截断。",
@@ -1222,7 +1018,7 @@ window.__REPORT_DATA__ = {
       "position": 5
     },
     {
-      "id": 82,
+      "id": 120,
       "name": "Skills（技能包）",
       "kind": "可复用指令",
       "usage": "按需加载领域规范，例如 Cordis 组合编排、桌面客户端用法速查。",
@@ -1230,15 +1026,15 @@ window.__REPORT_DATA__ = {
       "position": 6
     },
     {
-      "id": 83,
+      "id": 121,
       "name": "网页搜索 / 抓取",
       "kind": "工具",
-      "usage": "核对 ReAct 等术语与参考资料链接是否真实可访问。",
+      "usage": "核对 ReAct 等术语与外部事实是否真实、准确。",
       "status": "used",
       "position": 7
     },
     {
-      "id": 84,
+      "id": 122,
       "name": "子代理（Subagent）",
       "kind": "并行工作单元",
       "usage": "可在独立上下文中并行处理互不依赖的子任务。本次规模较小，未强行拆分。",
@@ -1246,7 +1042,7 @@ window.__REPORT_DATA__ = {
       "position": 8
     },
     {
-      "id": 85,
+      "id": 123,
       "name": "AgentTeams 多智能体协作",
       "kind": "协作框架",
       "usage": "队长拆任务、成员各自认领、互相审校，适合更大的项目。",
@@ -1254,7 +1050,7 @@ window.__REPORT_DATA__ = {
       "position": 9
     },
     {
-      "id": 86,
+      "id": 124,
       "name": "动态插件（Cordis）",
       "kind": "运行时扩展",
       "usage": "可在会话中临时为 Agent 增加新工具或页面 UI，本次未使用。",
@@ -1262,7 +1058,7 @@ window.__REPORT_DATA__ = {
       "position": 10
     },
     {
-      "id": 87,
+      "id": 125,
       "name": "撤销 / 快照（Savepoint）",
       "kind": "安全机制",
       "usage": "配置或文件改错时可一键回滚，属于「敢让 Agent 动手」的前提条件。",
@@ -1270,23 +1066,16 @@ window.__REPORT_DATA__ = {
       "position": 11
     }
   ],
-  "comments": [
-    {
-      "id": 10,
-      "author": "老师",
-      "content": "报告结构清楚，动态部分演示得不错，可以交了。",
-      "created_at": "2026-10-16T12:06:18.013Z"
-    }
-  ],
+  "comments": [],
   "stats": {
     "visits": 0,
     "visitsToday": 0,
     "last7": [],
     "likes": 0,
-    "comments": 1,
-    "sections": 11
+    "comments": 0,
+    "sections": 8
   },
-  "builtAt": "2026-10-16T12:06:18.064Z"
+  "builtAt": "2026-10-16T12:20:37.459Z"
 };
 
 </script>
@@ -1314,7 +1103,7 @@ const STATUS = {
 
 const state = {
   meta: {}, sections: [], tools: [], stats: {}, comments: [],
-  editing: false, loading: true, editingSection: null, hasUpdate: false,
+  loading: true,
 };
 
 /* ---------------------------------------------------------- API */
@@ -1362,18 +1151,7 @@ function localReset() {
   state.comments = JSON.parse(JSON.stringify(s.comments || []));
   state.stats = { ...(s.stats || {}), likes: (s.stats && s.stats.likes) || 0 };
 }
-function payload() {
-  return { meta: state.meta, sections: state.sections, tools: state.tools, comments: state.comments, stats: state.stats };
-}
-function download(name, text, type = 'text/plain;charset=utf-8') {
-  const url = URL.createObjectURL(new Blob([text], { type }));
-  const a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
-
-/** 本地版 API：路径与接口名都和服务端保持一致，方便对照阅读 */
+/* 本地版 API：路径与接口名都和服务端保持一致，方便对照阅读 */
 async function localApi(path, { method = 'GET', body } = {}) {
   const m = method.toUpperCase();
   const sec = path.match(/^\/api\/sections(?:\/([\w-]+))?$/);
@@ -1450,60 +1228,18 @@ async function localApi(path, { method = 'GET', body } = {}) {
   throw new Error('静态版不支持该操作：' + m + ' ' + path);
 }
 
-/** 静态版顶部横幅 */
+/** 静态版顶部横幅：说明当前是快照版，本站不提供在线编辑入口 */
 function mountStaticBanner() {
-  const hasDataFile = !!document.querySelector('script[src="data.js"]');   // 多文件静态版才有 data.js
   const el = document.createElement('div');
   el.className = 'static-banner';
   el.id = 'staticBanner';
   el.innerHTML = `
     <div class="sb-in">
-      <b>📄 当前是静态部署版</b>
-      <span>页面内容是一份从数据库导出的快照；在这里的<strong>编辑、留言、点赞只保存在你自己的浏览器</strong>里（不会影响别人）。
-      想体验「改一处、所有页面实时同步」的服务端版本，请在本机运行 <code>start.cmd</code>。</span>
-      <span class="sb-actions">
-        ${hasDataFile ? '<button class="btn" id="sbData">⬇️ 导出我改过的 data.js</button>' : ''}
-        <button class="btn primary" id="sbHtml">⬇️ 导出单文件 HTML</button>
-        <button class="btn" id="sbClear">↺ 清除本地改动</button>
-      </span>
+      <b>📄 当前是静态快照版</b>
+      <span>页面内容是一份从数据库导出的快照，<strong>本站不提供在线编辑入口</strong>。
+      想了解「改一处、所有页面实时同步」的服务端版本，可在本机运行 <code>start.cmd</code> 查看完整项目。</span>
     </div>`;
   document.querySelector('main').prepend(el);
-
-  const bind = (id, fn) => { const b = document.getElementById(id); if (b) b.onclick = fn; };
-
-  bind('sbData', () => {
-    download('data.js', 'window.__REPORT_DATA__ = ' + JSON.stringify(payload(), null, 2) + ';\n', 'text/javascript;charset=utf-8');
-    toast('已导出 data.js —— 覆盖仓库里的同名文件即可让所有人都看到');
-  });
-
-  bind('sbHtml', () => {
-    const clone = document.documentElement.cloneNode(true);
-    ['#staticBanner', '#toast', '.editbar', '#progressBar', '#toTop'].forEach((sel) =>
-      $$(sel, clone).forEach((n) => n.remove()));
-    const tl = clone.querySelector('#tocList'); if (tl) tl.innerHTML = '';
-    const tn = clone.querySelector('#topNav'); if (tn) tn.innerHTML = '';
-    const d = clone.querySelector('#doc'); if (d) d.innerHTML = '';
-    $$('[contenteditable]', clone).forEach((n) => n.removeAttribute('contenteditable'));
-
-    // 清掉所有旧的内容快照（多文件版是 data.js，单文件版是内联脚本），
-    // 再把当前内容写成唯一一份放进 head —— 保证它一定在 app.js 之前执行。
-    Array.from(clone.querySelectorAll('script')).forEach((s) => {
-      const src = s.getAttribute('src') || '';
-      if (/data\.js$/i.test(src) || s.textContent.includes('__REPORT_DATA__')) s.remove();
-    });
-    const inline = clone.ownerDocument.createElement('script');
-    inline.textContent = 'window.__REPORT_DATA__=' + JSON.stringify(payload()) + ';';
-    clone.querySelector('head').appendChild(inline);
-
-    download('AI-Agent-使用报告-pb.html', '<!DOCTYPE html>\n' + clone.outerHTML + '\n', 'text/html;charset=utf-8');
-    toast('已导出一份可离线打开、可直接发老师、也可覆盖上传的单文件 HTML');
-  });
-
-  bind('sbClear', () => {
-    if (!confirm('清除本浏览器里的所有改动，恢复成快照内容？')) return;
-    localReset(); rerender();
-    toast('已恢复为快照内容');
-  });
 }
 
 /* ---------------------------------------------------------- 提示 */
@@ -1569,66 +1305,21 @@ function renderBlock(b) {
 function renderTools() {
   const rows = state.tools.map((t) => {
     const st = STATUS[t.status] || STATUS.todo;
-    if (!state.editing) {
-      return `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.kind)}</td><td>${esc(t.usage)}</td>
-        <td><span class="tag ${st.cls}">${st.label}</span></td></tr>`;
-    }
-    return `<tr data-tool="${t.id}">
-      <td><div class="tools-edit-row"><input data-f="name" value="${esc(t.name)}" /></div></td>
-      <td><div class="tools-edit-row"><input data-f="kind" value="${esc(t.kind)}" /></div></td>
-      <td><div class="tools-edit-row"><input data-f="usage" value="${esc(t.usage)}" /></div></td>
-      <td><div class="tools-edit-row">
-        <select data-f="status">
-          ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${t.status === k ? 'selected' : ''}>${v.label}</option>`).join('')}
-        </select>
-        <button class="btn" data-act="save-tool" title="保存这一行">💾</button>
-        <button class="btn danger" data-act="del-tool" title="删除这一行">🗑</button>
-      </div></td></tr>`;
+    return `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.kind)}</td><td>${esc(t.usage)}</td>
+      <td><span class="tag ${st.cls}">${st.label}</span></td></tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
     <thead><tr><th>工具 / 能力</th><th>类型</th><th>在本次任务中做了什么</th><th>使用情况</th></tr></thead>
     <tbody>${rows}</tbody></table></div>`;
 }
 
-function renderSectionEdit(sec) {
-  const blocks = sec.blocks || [];
-  const parts = blocks.map((b, i) => {
-    if (b.type === 'p') {
-      return `<div class="edit-block"><label class="muted">段落 ${i + 1}（支持 &lt;strong&gt; &lt;a&gt; 等简单 HTML）</label>
-        <textarea class="edit-area" data-bi="${i}">${esc(b.text || '')}</textarea></div>`;
-    }
-    if (b.type === 'ul') {
-      return `<div class="edit-block"><label class="muted">列表 ${i + 1}（一行一条）</label>
-        <textarea class="edit-area" data-bi="${i}" data-t="ul">${esc((b.items || []).join('\n'))}</textarea></div>`;
-    }
-    return `<div class="callout"><span class="ct">只读组件：${esc(b.type)}</span>
-      <p>这类内容由数据结构生成（表格 / 流程图 / 时间线），请在数据层修改，或在页面上用「工具行」按钮维护工具表。</p></div>`;
-  }).join('');
-
-  return `<div class="edit-block"><label class="muted">章节标题</label>
-      <input class="edit-area" data-f="title" value="${esc(sec.title)}" /></div>
-    <div class="edit-block"><label class="muted">一句话摘要</label>
-      <input class="edit-area" data-f="summary" value="${esc(sec.summary)}" /></div>
-    ${parts}
-    <div class="edit-actions">
-      <button class="btn primary" data-act="save-section" data-anchor="${sec.anchor}">💾 保存并同步</button>
-      <button class="btn" data-act="cancel-section">取消</button>
-      <button class="btn danger" data-act="del-section" data-anchor="${sec.anchor}">🗑 删除本章</button>
-    </div>`;
-}
-
+/** 渲染正文（只读：网站上不提供在线编辑入口，内容由数据源生成） */
 function renderSections() {
   const article = $('#doc');
   article.innerHTML = state.sections.map((sec) => {
-    const editingThis = state.editing && state.editingSection === sec.anchor;
-    const body = editingThis
-      ? renderSectionEdit(sec)
-      : `${sec.summary ? `<p class="sec-summary">${sec.summary}</p>` : ''}${(sec.blocks || []).map(renderBlock).join('')}`;
-    const tools = state.editing && !editingThis
-      ? `<span class="sec-tools"><button class="btn" data-act="edit-section" data-anchor="${sec.anchor}">✏️ 编辑本章</button></span>`
-      : '';
+    const body = `${sec.summary ? `<p class="sec-summary">${sec.summary}</p>` : ''}${(sec.blocks || []).map(renderBlock).join('')}`;
     return `<section class="card" id="${esc(sec.anchor)}" data-anchor="${esc(sec.anchor)}">
-      <h2><span class="num">${esc(sec.num)}</span><span>${esc(sec.title)}</span>${tools}</h2>${body}</section>`;
+      <h2><span class="num">${esc(sec.num)}</span><span>${esc(sec.title)}</span></h2>${body}</section>`;
   }).join('');
 
   const toc = $('#tocList');
@@ -1640,64 +1331,7 @@ function renderSections() {
   nav.innerHTML = state.sections.slice(0, 6)
     .map((s) => `<a href="#${esc(s.anchor)}">${esc(s.title)}</a>`).join('');
 
-  rewireArticle();
   syncTocActive();
-}
-
-/** 章节内的按钮/输入事件（每次渲染后重新绑定） */
-function rewireArticle() {
-  $$('#doc [data-act]').forEach((btn) => {
-    btn.onclick = async () => {
-      const act = btn.dataset.act;
-      try {
-        if (act === 'edit-section') {
-          state.editingSection = btn.dataset.anchor;
-          renderSections();
-          window.scrollTo({ top: $("#" + CSS.escape(btn.dataset.anchor)).offsetTop - 80, behavior: 'smooth' });
-        } else if (act === 'cancel-section') {
-          state.editingSection = null;
-          renderSections();
-        } else if (act === 'save-section') {
-          await saveSection(btn.dataset.anchor);
-        } else if (act === 'del-section') {
-          if (!confirm('确定删除这一章？删除后所有打开的页面都会同步消失。')) return;
-          state.editingSection = null;
-          await api(`/api/sections/${btn.dataset.anchor}`, { method: 'DELETE' });
-          toast('章节已删除');
-        } else if (act === 'save-tool') {
-          const row = btn.closest('tr');
-          const id = row.dataset.tool;
-          const patch = {};
-          $$('input,select', row).forEach((el) => { patch[el.dataset.f] = el.value; });
-          await api(`/api/tools/${id}`, { method: 'PUT', body: patch });
-          toast('工具行已保存');
-        } else if (act === 'del-tool') {
-          const row = btn.closest('tr');
-          if (!confirm('删除这一行工具？')) return;
-          await api(`/api/tools/${row.dataset.tool}`, { method: 'DELETE' });
-          toast('工具行已删除');
-        }
-      } catch (e) {
-        toast(e.message || '操作失败');
-      }
-    };
-  });
-}
-
-async function saveSection(anchor) {
-  const sec = state.sections.find((s) => s.anchor === anchor);
-  const card = $(`#doc section[data-anchor="${CSS.escape(anchor)}"]`);
-  const blocks = JSON.parse(JSON.stringify(sec.blocks || []));
-  $$('textarea[data-bi]', card).forEach((ta) => {
-    const i = Number(ta.dataset.bi);
-    if (ta.dataset.t === 'ul') blocks[i] = { ...blocks[i], items: ta.value.split('\n').map((s) => s.trim()).filter(Boolean) };
-    else blocks[i] = { ...blocks[i], text: ta.value };
-  });
-  const title = $('input[data-f="title"]', card)?.value ?? sec.title;
-  const summary = $('input[data-f="summary"]', card)?.value ?? sec.summary;
-  state.editingSection = null;                       // 先收起编辑表单，再保存（两种模式都不残留）
-  await api(`/api/sections/${anchor}`, { method: 'PUT', body: { title, summary, blocks } });
-  toast(STATIC ? '已保存到本浏览器（点横幅里的「导出 data.js」可同步给别人）' : '已保存到数据库，并同步给所有页面');
 }
 
 /* ---------------------------------------------------------- 数据 → 页面 */
@@ -1755,15 +1389,7 @@ function renderComments() {
   list.innerHTML = state.comments.map((c) => `<div class="comment" data-cid="${c.id}">
       <div class="c-head"><span class="c-author">${esc(c.author)}</span><span class="c-time">${fmtTime(c.created_at)}</span></div>
       <div class="c-body">${esc(c.content)}</div>
-      ${state.editing ? `<button class="c-del" data-del="${c.id}">删除</button>` : ''}
     </div>`).join('');
-  $$('[data-del]', list).forEach((b) => {
-    b.onclick = async () => {
-      if (!confirm('删除这条留言？')) return;
-      try { await api(`/api/comments/${b.dataset.del}`, { method: 'DELETE' }); toast('留言已删除'); }
-      catch (e) { toast(e.message); }
-    };
-  });
 }
 
 /** 重新渲染整页（各自兜底：某一块出错也不至于整页空掉） */
@@ -1822,12 +1448,6 @@ function connectSSE() {
   es.addEventListener('changed', async (ev) => {
     let scope = {};
     try { scope = JSON.parse(ev.data); } catch {}
-    if (state.editingSection) {
-      // 正在编辑，别把表单冲掉
-      state.hasUpdate = true;
-      toast('服务端有新的改动 —— 点这里刷新', { action: true, ms: 6000, onClick: () => location.reload() });
-      return;
-    }
     await loadAll({ silent: true });
     if (scope.scope !== 'presence') flash(scope.scope);
   });
@@ -1846,49 +1466,6 @@ function flash(scope) {
   if (msg) toast(msg);
 }
 
-/* ---------------------------------------------------------- 编辑模式 */
-function askToken() {
-  return new Promise((resolve) => {
-    const modal = $('#tokenModal'), input = $('#tokenInput'), err = $('#tokenErr');
-    modal.hidden = false; err.hidden = true; input.value = ''; input.focus();
-    const done = (val) => { modal.hidden = true; resolve(val); };
-    $('#tokenOk').onclick = () => {
-      const v = input.value.trim();
-      if (!v) { err.textContent = '请输入口令'; err.hidden = false; return; }
-      done(v);
-    };
-    $('#tokenCancel').onclick = () => done(null);
-    input.onkeydown = (e) => { if (e.key === 'Enter') $('#tokenOk').click(); };
-  });
-}
-
-async function setEditing(on) {
-  if (on && !STATIC) {
-    let token = sessionStorage.getItem('aar-token');
-    if (!token) {
-      token = await askToken();
-      if (!token) return;
-    }
-    const r = await api('/api/verify-token', { method: 'POST', body: { token } }).catch(() => ({ ok: false }));
-    if (!r.ok) {
-      sessionStorage.removeItem('aar-token');
-      const err = $('#tokenErr');
-      $('#tokenModal').hidden = false; err.textContent = '口令不正确，请重试'; err.hidden = false;
-      return;
-    }
-    sessionStorage.setItem('aar-token', token);
-  }
-  state.editing = on;
-  state.editingSection = null;
-  document.body.classList.toggle('editing', on);
-  $('#btnEdit').setAttribute('aria-pressed', String(on));
-  $('#btnEdit').querySelector('.lbl').textContent = on ? '退出编辑' : '编辑模式';
-  $('#btnAddSection').hidden = !on;
-  $('#btnReset').hidden = !on;
-  renderSections(); renderComments();
-  toast(on ? '编辑模式已开启：点章节上的「编辑本章」' : '已退出编辑模式');
-}
-
 /* ---------------------------------------------------------- 事件绑定 */
 /* 用 on() 绑定：万一某个元素不存在，只打印警告，不会让整个脚本挂掉 */
 const on = (sel, handler, ev = 'onclick') => {
@@ -1902,52 +1479,6 @@ on('#btnLike', async () => {
   catch (e) { toast(e.message); }
 });
 on('#btnPrint', () => window.print());
-on('#btnEdit', () => setEditing(!state.editing));
-on('#btnEdit2', () => setEditing(true));
-on('#ebExit', () => setEditing(false));
-
-on('#ebAddTool', async () => {
-  try {
-    await api('/api/tools', { method: 'POST', body: { name: '新的工具', kind: '工具', usage: '点这里改成它的作用', status: 'todo' } });
-    toast('已新增一行，改完记得点 💾');
-  } catch (e) { toast(e.message); }
-});
-
-on('#btnAddSection', async () => {
-  const title = prompt('新章节标题：', '遇到的困难');
-  if (!title) return;
-  try {
-    const r = await api('/api/sections', { method: 'POST', body: { title, summary: '（点「编辑本章」补充内容）', blocks: [{ type: 'p', text: '在这里写点内容。' }] } });
-    state.editingSection = r.section.anchor;
-    toast('章节已创建，正在编辑');
-  } catch (e) { toast(e.message); }
-});
-
-on('#btnReset', async () => {
-  if (!confirm('恢复出厂内容？用 lib/seed.js 覆盖数据库里的所有内容（留言与访问统计也会被清空）。')) return;
-  try { await api('/api/reset', { method: 'POST' }); toast('已恢复初始内容'); } catch (e) { toast(e.message); }
-});
-
-/* 报告信息（作者/课程/日期）在线编辑 */
-const META_FIELDS = [
-  ['title', '报告标题'], ['subtitle', '副标题'], ['course', '课程名'], ['assignment', '作业名'],
-  ['author', '作者'], ['date', '完成日期'], ['version', '版本'],
-];
-on('#ebMeta', () => {
-  $('#metaForm').innerHTML = META_FIELDS.map(([k, label]) =>
-    `<label for="mf-${k}">${label}</label><input id="mf-${k}" data-k="${k}" value="${esc(state.meta[k] || '')}" />`).join('');
-  $('#metaModal').hidden = false;
-});
-on('#metaCancel', () => { $('#metaModal').hidden = true; });
-on('#metaSave', async () => {
-  const patch = {};
-  $$('#metaForm input').forEach((i) => { patch[i.dataset.k] = i.value; });
-  try {
-    await api('/api/meta', { method: 'PUT', body: patch });
-    $('#metaModal').hidden = true;
-    toast('报告信息已保存');
-  } catch (e) { toast(e.message); }
-});
 
 /* 留言 */
 on('#commentForm', async (e) => {
@@ -1981,7 +1512,6 @@ function onScroll() {
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', onScroll);
 on('#toTop', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.editing) setEditing(false); });
 
 /* ---------------------------------------------------------- 启动 */
 if (STATIC) {
