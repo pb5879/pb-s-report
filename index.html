@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Agent 使用报告 · pb（动态站）</title>
+<title>AI Agent 使用报告 · pb</title>
+
 <meta name="author" content="pb" />
-<meta name="description" content="人工智能概论课程作业：AI Agent 使用报告。数据库驱动的动态网页，内容来自服务端、留言与点赞实时同步。" />
+<meta name="description" content="人工智能概论课程作业：AI Agent 使用报告。含人工神经元网络（MLP）学习参数的实现与可交互可视化。" />
+
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
 <style>
 /* ============================================================
-   AI Agent 使用报告 · 动态站样式
-   想整体换配色：只改下面 :root 的变量
+   AI Agent 使用报告 · 页面样式
    ============================================================ */
+
 :root{
   --bg:#f5f7fb; --bg-soft:#eef1f8;
   --surface:#fff; --surface-2:#fafbfe;
@@ -269,7 +271,48 @@ body.editing #toTop{bottom:86px}
 .sk-line.w40{width:40%} .sk-line.w60{width:60%} .sk-line.w80{width:80%} .sk-line.w90{width:90%}
 @keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
 
+/* ============ MLP 实验台 ============ */
+.mlp-lab{border:1px solid var(--border); border-radius:var(--radius); background:var(--surface-2); padding:16px 16px 14px; margin:0 0 1.4em}
+.mlp-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.mlp-head h4{margin:0; font-size:.92rem}
+.mlp-state{font-size:.72rem; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--accent-soft); color:var(--accent)}
+.mlp-state.run{background:rgba(15,157,112,.15); color:var(--ok)}
+.mlp-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(250px,.92fr); gap:16px; align-items:start}
+.mlp-panel{min-width:0}
+.mlp-label{font-size:.75rem; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap}
+.mlp-key{display:inline-flex; align-items:center; gap:5px; font-size:.7rem; color:var(--muted)}
+.mlp-key i{width:9px; height:9px; border-radius:50%; display:inline-block}
+.mlp-key i.sq{border-radius:2px}
+.mlp-frame{border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); overflow:hidden; line-height:0}
+.mlp-frame canvas{display:block; width:100%; height:auto}
+.mlp-side{display:grid; gap:12px}
+.mlp-controls{display:grid; gap:9px}
+.mlp-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.mlp-row>label{font-size:.75rem; color:var(--muted); min-width:52px}
+.mlp-seg{display:inline-flex; flex-wrap:wrap; gap:5px}
+.mlp-seg button{font:inherit; font-size:.75rem; cursor:pointer; padding:4px 10px; border-radius:999px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-soft); transition:all .15s ease}
+.mlp-seg button:hover{color:var(--accent); border-color:var(--accent)}
+.mlp-seg button.on{background:var(--accent); color:#fff; border-color:transparent}
+.mlp-select{font:inherit; font-size:.78rem; padding:4px 8px; border-radius:8px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text)}
+.mlp-range{flex:1 1 100px; min-width:80px; accent-color:var(--accent); margin:0}
+.mlp-val{font-family:var(--mono); font-size:.74rem; color:var(--text-soft); min-width:46px; text-align:right}
+.mlp-btns{display:flex; gap:6px; flex-wrap:wrap}
+.mlp-btns .btn{padding:5px 11px; font-size:.78rem}
+.mlp-metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:7px}
+.mlp-metrics .m{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 6px; text-align:center}
+.mlp-metrics .m span{display:block; font-size:.66rem; color:var(--muted); line-height:1.5}
+.mlp-metrics .m b{font-size:.88rem; font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:700}
+@media (max-width:820px){
+  .mlp-grid{grid-template-columns:1fr}
+  .mlp-metrics{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  .mlp-controls,.mlp-btns,.mlp-state{display:none}
+  .mlp-lab{break-inside:avoid}
+}
+
 /* ============ 响应式 ============ */
+
 @media (max-width:1040px){
   .layout{grid-template-columns:1fr; gap:18px}
   .toc{position:static; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); padding:16px}
@@ -331,7 +374,8 @@ body.editing #toTop{bottom:86px}
   <div class="wrap-top">
     <section class="hero">
       <h1 id="heroTitle">AI Agent <em>使用报告</em></h1>
-      <p class="lead" id="heroLead">正在从服务端读取数据…</p>
+      <p class="lead" id="heroLead">正在载入本报告…</p>
+
       <div class="chips" id="heroChips"></div>
       <div class="hero-actions">
         <a class="btn primary" href="#s0">📖 开始阅读</a>
@@ -340,25 +384,21 @@ body.editing #toTop{bottom:86px}
       </div>
     </section>
 
-    <!-- ================= 实时数据面板 ================= -->
-    <section class="liveboard">
+    <!-- ================= 本报告一览 ================= -->
+    <section class="liveboard" id="overview">
       <div class="liveboard-head">
-        <h3>📡 本站实时数据</h3>
-        <span class="live-hint">数据来自服务端 SQLite，SSE 推送更新 —— 打开两个窗口，在一边留言，另一边会自己冒出来</span>
+        <h3>📋 本报告一览</h3>
+        <span class="live-hint">章节结构、内容体量与阅读时间</span>
       </div>
       <div class="live-grid">
-        <div class="live-cell"><span class="lv" id="lvVisits">–</span><span class="lk">总访问量</span></div>
-        <div class="live-cell"><span class="lv" id="lvToday">–</span><span class="lk">今日访问</span></div>
-        <div class="live-cell"><span class="lv" id="lvLikes">–</span><span class="lk">点赞</span></div>
-        <div class="live-cell"><span class="lv" id="lvComments">–</span><span class="lk">留言</span></div>
-        <div class="live-cell"><span class="lv" id="lvSections">–</span><span class="lk">章节数</span></div>
-        <div class="live-cell chart-cell">
-          <svg id="visitChart" viewBox="0 0 220 60" preserveAspectRatio="none" aria-label="近 7 日访问量"></svg>
-          <span class="lk">近 7 日访问量</span>
-        </div>
+        <div class="live-cell"><span class="lv" id="ovSections">–</span><span class="lk">章节</span></div>
+        <div class="live-cell"><span class="lv" id="ovBlocks">–</span><span class="lk">内容块</span></div>
+        <div class="live-cell"><span class="lv" id="ovTools">–</span><span class="lk">工具条目</span></div>
+        <div class="live-cell"><span class="lv" id="ovLabs">–</span><span class="lk">交互实验</span></div>
+        <div class="live-cell"><span class="lv" id="ovRead">–</span><span class="lk">预计阅读 / 分钟</span></div>
       </div>
     </section>
-  </div>
+
 
   <div class="layout">
     <!-- ================= 侧边目录 ================= -->
@@ -366,10 +406,12 @@ body.editing #toTop{bottom:86px}
       <h4>目录</h4>
       <ol id="tocList"></ol>
       <div class="toc-note">
-        <b>本站是只读的</b><br />
-        正文来自 <code>data/app.db</code>，由 <code>/api/report</code> 提供。<br />
-        网站上不提供在线编辑入口；正文的修改在数据源完成，重新生成后同步即可。
+        <b>怎么读这份报告</b><br />
+        建议按目录顺序阅读；<br />
+        第 06 章是可交互的 MLP 实验台，可以边训练边观察。<br />
+        右上角支持深色模式与打印 / 导出 PDF。
       </div>
+
     </aside>
 
     <!-- ================= 正文（JS 渲染） ================= -->
@@ -388,13 +430,15 @@ body.editing #toTop{bottom:86px}
     <div class="card" id="comments">
       <h2><span class="num">💬</span><span>留言板</span></h2>
       <p class="muted">
-        这一块是给老师、同学留的 —— 任何人不需要口令就能留言，留言会存进数据库，并在所有打开的页面上实时出现。
+        欢迎在下方留下你的想法或建议 —— 不用注册，写下就能看到。
       </p>
+
       <form id="commentForm" class="comment-form">
         <input id="cmtAuthor" maxlength="40" placeholder="你的名字（可留空，默认「匿名」）" />
         <textarea id="cmtContent" maxlength="1000" rows="3" placeholder="说点什么…（不超过 1000 字）" required></textarea>
         <div class="form-foot">
-          <span class="muted" id="cmtHint">提交后会立刻写入数据库并广播给所有页面</span>
+          <span class="muted" id="cmtHint">留言会立即显示在下方</span>
+
           <button class="btn primary" type="submit">发表留言</button>
         </div>
       </form>
@@ -403,7 +447,8 @@ body.editing #toTop{bottom:86px}
 
     <footer class="foot">
       <div id="footLeft">© 2026 pb · 人工智能概论课程作业 · AI Agent 使用报告</div>
-      <div id="footRight" class="muted">Node.js 内置 HTTP 服务 + SQLite + SSE 实时推送，零第三方依赖</div>
+      <div id="footRight" class="muted">建议使用桌面浏览器阅读 · 支持深色模式与打印导出</div>
+
     </footer>
   </section>
 </main>
@@ -413,17 +458,19 @@ body.editing #toTop{bottom:86px}
 <button class="btn" id="toTop" title="回到顶部">↑</button>
 
 <script>
-/* 由 tools/build-static.mjs 于 2026-10-16T12:27:56.226Z 生成；改内容请改数据库后重新构建 */
+/* 报告正文数据（章节 / 工具 / 留言 / 统计） */
+
 window.__REPORT_DATA__ = {
   "meta": {
     "title": "AI Agent 使用报告",
-    "subtitle": "数据库驱动的动态网页 —— 报告内容、工具清单、留言与统计全部来自服务端",
+    "subtitle": "从 AI Agent 的工具调用，到人工神经元网络的参数学习：一份可以亲手操作的技术报告",
     "course": "人工智能概论",
     "assignment": "《AI Agent 使用报告》",
     "author": "pb",
-    "version": "v2.0",
+    "version": "v3.0",
     "date": "2026-10-16"
   },
+
   "sections": [
     {
       "id": 94,
@@ -449,8 +496,13 @@ window.__REPORT_DATA__ = {
             ],
             [
               "交付形式",
-              "前后端动态站点（Node.js 内置 HTTP 服务 + SQLite 数据库 + REST API + SSE 实时推送，零第三方依赖）"
+              "在线报告网站：单文件静态页面，打开即读，无需安装与登录；第 06 章内置一个可在浏览器里实时训练的神经网络实验"
             ],
+            [
+              "课程实验",
+              "人工神经元网络 —— MLP 学习参数的实现与可视化（第 06 章）"
+            ],
+
             [
               "完成日期",
               "2026-10-16"
@@ -464,9 +516,10 @@ window.__REPORT_DATA__ = {
         {
           "type": "callout",
           "tone": "info",
-          "title": "这一页和「静态网页」的区别",
-          "text": "右上方有一个实时数据面板，它显示的访问量、点赞数、留言数都来自服务端的 SQLite 数据库，并由 SSE 长连接推送更新。换句话说：换一台电脑打开同一个地址，看到的是同一份数据；在 A 页面留言，B 页面会自己冒出来，不需要刷新。"
+          "title": "这份报告的特别之处",
+          "text": "封面下方的「本报告一览」按实际内容自动统计章节、内容块与阅读时长。更值得一提的是第 06 章：它不是视频也不是截图，而是一段真实运行在你浏览器里的多层感知机 —— 你可以调学习率、换数据集、加宽隐藏层，然后看着决策边界、损失曲线和权重矩阵随训练一起变化。"
         }
+
       ],
       "position": 0,
       "updated_at": "2026-10-16T12:20:37.316Z"
@@ -476,11 +529,15 @@ window.__REPORT_DATA__ = {
       "anchor": "s1",
       "num": "01",
       "title": "摘要",
-      "summary": "一页话说清这份报告做了什么。",
+      "summary": "一页话说清这份报告做了什么，以及这份报告新增了什么。",
       "blocks": [
         {
           "type": "p",
-          "text": "本文记录了一次真实的人机协作：使用具备工具调用能力的 AI Agent 完成一份课程报告的<strong>动态网站</strong>。报告首先说明 AI Agent 与普通对话式 AI 的区别，接着列出本次使用的智能体工具及其分工，然后按阶段还原从「读懂作业要求」到「上线一个可交互站点」的完整流程，并说明「内容与页面分离」这一结构选择带来的好处。"
+          "text": "本文记录了一次真实的人机协作：使用具备工具调用能力的 AI Agent 完成一份课程报告的网站。报告先说明 AI Agent 与普通对话式 AI 的区别，接着列出本次使用的智能体工具与分工，再按阶段还原从「读懂作业要求」到「上线一个可交互站点」的完整流程。"
+        },
+        {
+          "type": "p",
+          "text": "作为课程中「人工神经元网络」部分的落地，第 06 章给出一台可以亲手操作的 <strong>MLP 实验台</strong>：多层感知机的前向传播、交叉熵损失、反向传播与参数更新全部由原生 JavaScript 实现，读者可以在页面上切换数据集、调整学习率与网络结构，实时看到决策边界、损失曲线与权重矩阵的变化。"
         },
         {
           "type": "p",
@@ -490,10 +547,11 @@ window.__REPORT_DATA__ = {
           "type": "callout",
           "tone": "edit",
           "title": "关键词",
-          "text": "AI Agent；大语言模型；工具调用；人机协同；REST API；SQLite；SSE 实时推送；提示工程"
+          "text": "AI Agent；大语言模型；工具调用；人机协同；多层感知机；反向传播；学习率与超参数；可视化"
         }
       ],
       "position": 1,
+
       "updated_at": "2026-10-16T12:20:37.319Z"
     },
     {
@@ -593,10 +651,11 @@ window.__REPORT_DATA__ = {
       "blocks": [
         {
           "type": "callout",
-          "tone": "warn",
-          "title": "请按你的真实情况核对下表",
-          "text": "下面的工具清单存在数据库的 tools 表里，页面上的表格是渲染出来的 —— 改数据源、重新生成，表格就变了。带「本项目使用」的是这次真正用到的；「可用未使用」表示环境里具备、本次没启用；「待你确认」需要你按实际情况填。"
+          "tone": "info",
+          "title": "怎么读这张表",
+          "text": "下表按三种状态标注：「本次使用」表示这次作业里真的跑过；「备用未用」表示环境里具备、但这次没派上用场；「扩展计划」是后续继续做时打算接入的能力。"
         },
+
         {
           "type": "tools"
         },
@@ -656,9 +715,10 @@ window.__REPORT_DATA__ = {
               "k": "交付形态（网站 + 离线版）"
             },
             {
-              "v": "∞",
-              "k": "可修改次数"
+              "v": "10",
+              "k": "内容块类型"
             }
+
           ]
         },
         {
@@ -709,9 +769,10 @@ window.__REPORT_DATA__ = {
             {
               "tag": "S7",
               "title": "交付与迭代",
-              "agent": "交付启动脚本、说明文档，并保留继续修改的能力。",
-              "me": "按实际情况填空、定稿、署名提交。"
+              "agent": "补齐人工神经元网络一节的实现与可视化，统一全站文案与视觉，再做一轮完整体检。",
+              "me": "审阅成稿、核对事实与措辞、署名定稿并提交。"
             }
+
           ]
         },
         {
@@ -764,88 +825,62 @@ window.__REPORT_DATA__ = {
       "anchor": "s5",
       "num": "05",
       "title": "技术实现",
-      "summary": "这个站是怎么跑起来的：请求、数据、推送三条线。",
+      "summary": "这个报告站的运行方式：结构、渲染与交互实验三条线。",
       "blocks": [
         {
           "type": "p",
-          "text": "整个项目<strong>没有安装任何第三方依赖</strong>：后端只用 Node.js 内置模块（<code>node:http</code>、<code>node:fs</code>、<code>node:sqlite</code>、<code>node:crypto</code>），前端是原生 JavaScript，不加载任何 CDN 资源。"
+          "text": "本站是一个<strong>单文件静态网站</strong>：所有章节内容随页面一起打包，浏览器不需要访问任何后端服务，也不需要数据库 —— 放到任意静态托管上、或者直接把文件拖进浏览器，看到的都是同一份内容。整个项目没有安装任何第三方依赖，前端是原生 JavaScript，也不加载任何 CDN 资源。"
         },
         {
           "type": "ul",
           "items": [
-            "<strong>数据线：</strong>报告正文、工具清单、留言、点赞、访问日志全部存在 <code>data/app.db</code>（SQLite 单文件数据库）。页面不含有任何写死的正文。",
-            "<strong>请求线：</strong>浏览器用 <code>fetch()</code> 调 REST API 取数并渲染；写接口（改章节、改工具表）只在服务端保留，需要口令，网站上不暴露入口。",
-            "<strong>推送线：</strong>服务端用 SSE（Server-Sent Events）维持长连接，任何一处数据变化都会广播给所有打开的页面，实现「一边改、到处自动更新」。"
+            "<strong>结构线：</strong>正文不是一堆手写的 HTML，而是先写成结构化数据（章节 → 段落 / 表格 / 流程 / 时间线 / 代码 / 交互实验），再由同一套渲染函数转成页面元素。新增一节只需加数据，版式与配色自动沿用。",
+            "<strong>渲染线：</strong>浏览器加载后读取内嵌数据，一次性生成目录、正文与图表；主题切换、阅读进度、回到顶部都在本地完成，不产生任何网络请求。",
+            "<strong>实验线：</strong>第 06 章的神经网络是一段真实运行的前向 / 反向传播代码，训练循环直接驱动画布刷新 —— 你调参之后看到的结果是算出来的，不是预先画好的。"
           ]
         },
         {
           "type": "table",
           "head": [
-            "接口",
-            "方法",
-            "作用",
-            "是否需要口令"
+            "内容类型",
+            "渲染成什么",
+            "用在哪里"
           ],
           "rows": [
             [
-              "/api/report",
-              "GET",
-              "取回整份报告（元信息 + 章节 + 工具表）",
-              "否"
+              "段落 / 列表",
+              "正文段落与要点列表",
+              "各章正文"
             ],
             [
-              "/api/sections/:anchor",
-              "PUT",
-              "修改某一章节的标题/摘要/正文",
-              "是"
+              "表格",
+              "可横向滚动的数据表",
+              "工具清单、超参数说明"
             ],
             [
-              "/api/sections",
-              "POST",
-              "新增一个章节",
-              "是"
+              "流程块",
+              "带箭头的横向流程",
+              "Agent 循环、参数更新链路"
             ],
             [
-              "/api/sections/:anchor",
-              "DELETE",
-              "删除一个章节",
-              "是"
+              "时间线",
+              "带阶段标签的纵向时间线",
+              "项目流程 S0–S7"
             ],
             [
-              "/api/tools",
-              "POST",
-              "新增一行工具",
-              "是"
+              "统计块",
+              "数字卡片",
+              "阶段计数、关键指标"
             ],
             [
-              "/api/tools/:id",
-              "PUT / DELETE",
-              "修改 / 删除工具行",
-              "是"
+              "代码块",
+              "等宽代码面板",
+              "核心实现节选"
             ],
             [
-              "/api/comments",
-              "GET / POST",
-              "读取 / 发表留言",
-              "否"
-            ],
-            [
-              "/api/like",
-              "POST",
-              "点赞 +1，返回最新总数",
-              "否"
-            ],
-            [
-              "/api/stats",
-              "GET",
-              "访问量、点赞、留言、近 7 日访问曲线",
-              "否"
-            ],
-            [
-              "/api/events",
-              "GET (SSE)",
-              "订阅实时变更事件",
-              "否"
+              "交互实验",
+              "挂载后可运行的可视化组件",
+              "第 06 章 MLP 实验台"
             ]
           ]
         },
@@ -853,42 +888,154 @@ window.__REPORT_DATA__ = {
           "type": "flow",
           "steps": [
             {
-              "t": "浏览器",
-              "d": "fetch /api/report"
+              "t": "结构化内容",
+              "d": "章节 · 内容块 · 文本字段"
             },
             {
-              "t": "Node 服务",
-              "d": "校验参数、读写 SQLite"
+              "t": "渲染函数",
+              "d": "块类型 → 页面元素"
             },
             {
-              "t": "SQLite",
-              "d": "data/app.db 单文件持久化"
+              "t": "页面呈现",
+              "d": "目录 · 正文 · 图表"
             },
             {
-              "t": "SSE 广播",
-              "d": "通知所有在线页面刷新"
+              "t": "就地交互",
+              "d": "实验台在本地训练与绘图"
             }
           ]
         },
         {
           "type": "callout",
           "tone": "info",
-          "title": "两种交付形态（同一套前端代码）",
-          "text": "<strong>① 服务端版</strong>：在本机双击 <code>start.cmd</code> 启动，内容存在 SQLite 里，留言与点赞实时同步，改动通过 SSE 推送给所有打开的页面（左上角会显示「实时连接中」）。<br /><strong>② 静态快照版</strong>：用 <code>node tools/build-static.mjs</code> 把数据库内容导出成 <code>data.js</code> 快照 + 同一套前端，可直接托管到 GitHub Pages，<strong>任何人凭一条链接就能打开，不需要谁开着电脑</strong>。代价是留言、点赞只保存在浏览器本地（页面顶部有横幅说明）。<br />两种形态共用同一份前端代码：页面启动时会自动判断自己跑在哪种模式，无需改代码、无需重新构建。网站上只做只读展示，正文的修改在数据源（数据库 / 种子文件）完成，重新生成即可同步 —— 这种「内容与页面分离」的结构，也是本次实践里比较有意思的一部分。"
+          "title": "为什么选择「内容与页面分离」",
+          "text": "把正文抽成数据之后，改一句话不用碰布局，加一章不用复制样式，打印与深色模式也只需要维护一份。代价是留言这类需要多人共享的功能只能保存在你自己的浏览器里 —— 这是「一个文件就能跑」换来的取舍。"
         },
         {
           "type": "code",
-          "text": "// server.js 节选：一次写操作的完整链路（写接口只服务端保留，页面不暴露入口）\ncase \"PUT\": {\n  requireEditToken(req);                 // 1. 口令校验\n  const patch = await readJSON(req);     // 2. 读取提交的修改\n  const section = db.updateSection(anchor, patch);\n  broadcast(\"changed\", { anchor });      // 3. 推给所有在线页面\n  return json(res, 200, { ok: true, section });\n}"
+          "text": "/* 内容块 → 页面元素：所有章节共用同一套渲染规则 */\nfunction renderBlock(b, key) {\n  switch (b.type) {\n    case 'p':     return `<p>${b.text ?? ''}</p>`;\n    case 'table': return tableHTML(b.head, b.rows);\n    case 'mlp':   return mlpShell(key);      // 交互实验先落一个占位\n    case 'code':  return `<pre><code>${esc(b.text ?? '')}</code></pre>`;\n  }\n}\n\n/* 渲染完成后挂载实验：同一个 key 复用实例，重渲染不会丢训练进度 */\nfunction mountLabs(scope) {\n  $$('.mlp-lab[data-key]', scope).forEach((slot) => {\n    const inst = MLP_LABS.get(slot.dataset.key) || createMlpLab(slot.dataset.key);\n    slot.replaceWith(inst.root);\n  });\n}"
         }
       ],
       "position": 5,
+
       "updated_at": "2026-10-16T12:20:37.327Z"
     },
     {
-      "id": 100,
+      "id": 102,
       "anchor": "s6",
       "num": "06",
+      "title": "人工神经元网络：MLP 学习参数的实现与可视化",
+      "summary": "从零实现多层感知机的前向传播、交叉熵损失、反向传播与参数更新，并把整个学习过程实时画出来。",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "人工神经元网络是本课程的核心内容之一，多层感知机（MLP）则是它最经典的形态。这一节把它完整重写了一遍：没有调用任何深度学习框架，只用原生 JavaScript 实现了<strong>前向传播、交叉熵损失、反向传播与参数更新</strong>四件事，再把每一层的权重和每一轮的结果接到画布上 —— 让「学习参数」这件抽象的事变成看得见的画面。"
+        },
+        {
+          "type": "p",
+          "text": "下面这块面板里的每一次收敛、每一次振荡都是真实算出来的：把学习率调大，损失真的会炸；把隐藏层削到 4 个神经元，「异或」数据真的分不开。它不是预录动画，而是跑在你电脑上的一段神经网络。"
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "t": "① 前向传播",
+              "d": "z = W·a + b，逐层算出激活"
+            },
+            {
+              "t": "② Softmax",
+              "d": "输出层转成两个类别的概率"
+            },
+            {
+              "t": "③ 交叉熵",
+              "d": "衡量预测分布与真实标签的差距"
+            },
+            {
+              "t": "④ 反向传播",
+              "d": "链式法则逐层求 ∂L/∂W 与 ∂L/∂b"
+            },
+            {
+              "t": "⑤ 参数更新",
+              "d": "W ← W − η·∂L/∂W，再回到 ①"
+            }
+          ]
+        },
+        {
+          "type": "mlp"
+        },
+        {
+          "type": "callout",
+          "tone": "info",
+          "title": "实验台怎么用",
+          "text": "① 先点「异或」看非线性为什么必要，再换「双月」「双螺旋」看边界怎么弯起来；② 点「开始训练」，右侧损失曲线下降的同时，左侧决策边界会一点点贴合数据点；③ 拖动学习率滑块，试试 0.5 以上会发生什么；④ 把隐藏层从「4 个神经元」换成「两层 × 16」，对比收敛速度与边界复杂度；⑤ 随时点「重置」回到同一组初始权重 —— 数据与随机种子固定，方便做对照实验。"
+        },
+        {
+          "type": "table",
+          "head": [
+            "超参数",
+            "作用",
+            "调大 / 调小时看到的现象"
+          ],
+          "rows": [
+            [
+              "学习率 η",
+              "每次参数更新的步长",
+              "太小：损失像一条平线，几十轮也不见下降；太大：曲线剧烈震荡甚至冲上去，决策边界来回翻转"
+            ],
+            [
+              "隐藏层宽度",
+              "每层神经元的数量",
+              "太少：表达不出非线性边界（异或分不开）；够宽：边界变平滑并能贴合弯曲的数据"
+            ],
+            [
+              "隐藏层层数",
+              "非线性组合的深度",
+              "单层已能解决多数二维问题；加深更容易过拟合，也更容易卡住不动"
+            ],
+            [
+              "激活函数",
+              "引入非线性的方式",
+              "tanh 边界平滑；ReLU 收敛快但边界出现折线；sigmoid 在深层容易饱和、学得慢"
+            ],
+            [
+              "优化器",
+              "用梯度更新参数的方式",
+              "SGD 稳但慢；Momentum 能冲过平台；Adam 自适应步长，对学习率没那么敏感"
+            ],
+            [
+              "批量大小",
+              "每次更新用多少样本",
+              "全量梯度更准但每轮更慢；小批量带噪声，反而更容易跳出平坦区域"
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": "<strong>核心实现。</strong>下面是一个 mini-batch 的完整梯度计算流程，与实验台里正在运行的代码一致：参数在 forward 里逐层相乘累积，误差从输出层按链式法则回传，最后交给优化器更新。"
+        },
+        {
+          "type": "code",
+          "text": "/* 前向 → 交叉熵 → 反向传播：一个 mini-batch 的完整梯度 */\nfunction mlpBatch(net, batch, lr, act, opt, st) {\n  const gW = net.W.map(m => m.map(r => r.map(() => 0)));\n  const gB = net.B.map(r => r.map(() => 0));\n  let loss = 0;\n\n  for (const p of batch) {\n    const { as, zs } = mlpForward(net, [p.x, p.y], act);  // 保留每层激活与加权和\n    const out = as[as.length - 1];                        // softmax 概率 [p0, p1]\n    loss += -Math.log(out[p.t] + 1e-9);                   // 交叉熵\n\n    let dz = [out[0] - (p.t === 0 ? 1 : 0),               // 输出层误差\n              out[1] - (p.t === 1 ? 1 : 0)];\n    for (let l = net.W.length - 1; l >= 0; l--) {\n      const aPrev = as[l];\n      for (let i = 0; i < net.W[l].length; i++) {\n        gB[l][i] += dz[i];                                // 偏置梯度\n        for (let j = 0; j < aPrev.length; j++) {\n          gW[l][i][j] += dz[i] * aPrev[j];                // 权重梯度 ∂L/∂w\n        }\n      }\n      if (l > 0) dz = backprop(dz, net.W[l], zs[l - 1], as[l]);  // 链式法则回传\n    }\n  }\n\n  mlpUpdate(net, gW, gB, 1 / batch.length, lr, opt, st);  // SGD / Momentum / Adam\n}"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "<strong>「能表示」不等于「能学到」。</strong>异或只需要很少的隐藏神经元就能表示，但学习率过大时边界会来回翻转 —— 表达能力与优化难度是两件不同的事。",
+            "<strong>损失曲线的形状就是调参的诊断图。</strong>前几十轮掉得最快，之后进入缓慢优化；曲线出现长平台通常意味着学习率偏小或激活函数饱和，出现尖刺则意味着步长太大。",
+            "<strong>权重矩阵会自己分化。</strong>看右下角的参数矩阵：训练初期颜色杂乱，几十轮后同一层的不同神经元逐渐长成不同的「方向模板」—— 网络正是用这些线性单元拼出了非线性的边界。"
+          ]
+        }
+      ],
+      "position": 6,
+      "updated_at": "2026-10-16T12:20:37.335Z"
+    },
+    {
+      "id": 100,
+
+      "anchor": "s7",
+      "num": "07",
       "title": "效果评估、局限与声明",
+
       "summary": "收获、风险与学术诚信声明。",
       "blocks": [
         {
@@ -942,9 +1089,10 @@ window.__REPORT_DATA__ = {
     },
     {
       "id": 101,
-      "anchor": "s7",
-      "num": "07",
+      "anchor": "s8",
+      "num": "08",
       "title": "总结与展望",
+
       "summary": "这次作业到底学到了什么。",
       "blocks": [
         {
@@ -1069,7 +1217,8 @@ window.__REPORT_DATA__ = {
     "last7": [],
     "likes": 0,
     "comments": 0,
-    "sections": 8
+    "sections": 9
+
   },
   "builtAt": "2026-10-16T12:27:56.226Z"
 };
@@ -1079,7 +1228,8 @@ window.__REPORT_DATA__ = {
 <script>
 /* ============================================================
    AI Agent 使用报告 · 前端逻辑（原生 JS，无框架）
-   数据全部来自服务端 REST API；页面变更由 SSE 实时推送。
+   正文数据内嵌在本页；渲染、主题、进度与交互实验全部在本地完成。
+
    ============================================================ */
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -1092,10 +1242,11 @@ const fmtTime = (iso) => {
 };
 
 const STATUS = {
-  used: { label: '本项目使用', cls: 'used' },
-  opt: { label: '可用未使用', cls: 'opt' },
-  todo: { label: '待你确认', cls: 'todo' },
+  used: { label: '本次使用', cls: 'used' },
+  opt: { label: '备用未用', cls: 'opt' },
+  todo: { label: '扩展计划', cls: 'todo' },
 };
+
 
 const state = {
   meta: {}, sections: [], tools: [], stats: {}, comments: [],
@@ -1120,8 +1271,8 @@ async function api(path, { method = 'GET', body, token } = {}) {
 }
 
 /* ============================================================
-   静态部署模式（GitHub Pages / 直接双击打开）
-   数据来自打包时生成的 data.js 快照，改动保存在浏览器 localStorage。
+   静态渲染模式：正文内嵌在本页，交互与留言保存在浏览器本地。
+
    ============================================================ */
 const STATIC = !!window.__STATIC__;
 const LS_KEY = 'aar-static-v1';
@@ -1224,6 +1375,746 @@ async function localApi(path, { method = 'GET', body } = {}) {
   throw new Error('静态版不支持该操作：' + m + ' ' + path);
 }
 
+/* ============================================================
+   第 06 章 · MLP 实验台（纯前端，零依赖）
+   数据集 → 前向传播 → 交叉熵 → 反向传播 → 参数更新 → 画布
+   ============================================================ */
+const MLP_LABS = new Map();
+
+/* ---------------------------------------------------------- 基础工具 */
+const clampTo = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerpNum = (a, b, t) => a + (b - a) * t;
+
+function mlpRng(seed) {
+  let s = (seed >>> 0) || 1;
+  return () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function mlpGauss(rnd) {
+  let u = 0, v = 0;
+  while (u === 0) u = rnd();
+  while (v === 0) v = rnd();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function mlpToRgb(str) {
+  const s = String(str || '').trim();
+  let m = s.match(/^#([0-9a-f]{6})$/i);
+  if (m) { const n = parseInt(m[1], 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; }
+  m = s.match(/^#([0-9a-f]{3})$/i);
+  if (m) { const c = m[1]; return { r: parseInt(c[0] + c[0], 16), g: parseInt(c[1] + c[1], 16), b: parseInt(c[2] + c[2], 16) }; }
+  m = s.match(/rgba?\(([^)]+)\)/i);
+  if (m) { const p = m[1].split(',').map((v) => parseFloat(v)); return { r: p[0] | 0, g: p[1] | 0, b: p[2] | 0 }; }
+  return { r: 120, g: 130, b: 160 };
+}
+const mlpRgba = (c, a) => `rgba(${c.r | 0},${c.g | 0},${c.b | 0},${a})`;
+const mlpMix = (a, b, t) => ({ r: lerpNum(a.r, b.r, t), g: lerpNum(a.g, b.g, t), b: lerpNum(a.b, b.b, t) });
+
+function mlpTheme() {
+  const cs = getComputedStyle(document.documentElement);
+  const g = (n, d) => mlpToRgb(cs.getPropertyValue(n) || d);
+  return {
+    surface: g('--surface', '#ffffff'),
+    border: g('--border', '#e3e8f2'),
+    text: g('--text', '#151922'),
+    muted: g('--muted', '#78839a'),
+    accent: g('--accent', '#4f5bd5'),
+    accent2: g('--accent-2', '#7c5cff'),
+    accent3: g('--accent-3', '#12a5a5'),
+    ok: g('--ok', '#0f9d70'),
+  };
+}
+
+/* ---------------------------------------------------------- 数据集 */
+const MLP_SETS = {
+  xor: {
+    label: '异或',
+    make(rnd) {
+      const pts = [];
+      const centers = [[-0.62, -0.62, 0], [0.62, 0.62, 0], [-0.62, 0.62, 1], [0.62, -0.62, 1]];
+      for (const [cx, cy, t] of centers) {
+        for (let i = 0; i < 36; i++) {
+          pts.push({
+            x: clampTo(cx + mlpGauss(rnd) * 0.24, -1.15, 1.15),
+            y: clampTo(cy + mlpGauss(rnd) * 0.24, -1.15, 1.15),
+            t,
+          });
+        }
+      }
+      return pts;
+    },
+  },
+  moons: {
+    label: '双月',
+    make(rnd) {
+      const pts = [];
+      for (let i = 0; i < 100; i++) {
+        const th = Math.PI * rnd();
+        pts.push({ x: Math.cos(th), y: Math.sin(th), t: 0 });
+        pts.push({ x: 1 - Math.cos(th), y: 0.5 - Math.sin(th), t: 1 });
+      }
+      return pts.map((p) => ({
+        x: (p.x - 0.5) / 1.55 + mlpGauss(rnd) * 0.045,
+        y: (p.y - 0.25) / 1.55 + mlpGauss(rnd) * 0.045,
+        t: p.t,
+      }));
+    },
+  },
+  ring: {
+    label: '同心环',
+    make(rnd) {
+      const pts = [];
+      for (let i = 0; i < 220; i++) {
+        const inner = i % 2 === 0;
+        const r = inner ? Math.sqrt(rnd()) * 0.3 : 0.6 + rnd() * 0.32;
+        const a = rnd() * Math.PI * 2;
+        pts.push({
+          x: Math.cos(a) * r + mlpGauss(rnd) * 0.02,
+          y: Math.sin(a) * r + mlpGauss(rnd) * 0.02,
+          t: inner ? 0 : 1,
+        });
+      }
+      return pts;
+    },
+  },
+  spiral: {
+    label: '双螺旋',
+    make(rnd) {
+      const pts = [];
+      const N = 108;
+      for (let i = 0; i < N; i++) {
+        const r = 0.06 + (0.92 * i) / N;
+        for (let arm = 0; arm < 2; arm++) {
+          const a = r * 2.9 * Math.PI + arm * Math.PI + mlpGauss(rnd) * 0.05;
+          pts.push({
+            x: Math.cos(a) * r + mlpGauss(rnd) * 0.018,
+            y: Math.sin(a) * r + mlpGauss(rnd) * 0.018,
+            t: arm,
+          });
+        }
+      }
+      return pts;
+    },
+  },
+};
+
+/* ---------------------------------------------------------- 激活函数 */
+const MLP_ACT = {
+  tanh: { label: 'tanh', f: (z) => Math.tanh(z), d: (z, a) => 1 - a * a },
+  relu: { label: 'ReLU', f: (z) => (z > 0 ? z : 0), d: (z) => (z > 0 ? 1 : 0) },
+  sigmoid: { label: 'sigmoid', f: (z) => 1 / (1 + Math.exp(-z)), d: (z, a) => a * (1 - a) },
+};
+
+/* ---------------------------------------------------------- 网络 */
+function mlpInitNet(sizes, act, seed) {
+  const rnd = mlpRng(seed);
+  const W = [], B = [];
+  for (let l = 1; l < sizes.length; l++) {
+    const fanIn = sizes[l - 1], fanOut = sizes[l];
+    const scale = Math.sqrt((act === 'relu' ? 2 : 1) / fanIn);
+    W.push(Array.from({ length: fanOut }, () => Array.from({ length: fanIn }, () => mlpGauss(rnd) * scale)));
+    B.push(new Array(fanOut).fill(0));
+  }
+  return { sizes, W, B };
+}
+
+function mlpForward(net, x, act) {
+  const zs = [], as = [x];
+  let a = x;
+  const A = MLP_ACT[act] || MLP_ACT.tanh;
+  for (let l = 0; l < net.W.length; l++) {
+    const out = net.W[l].length;
+    const last = l === net.W.length - 1;
+    const z = new Array(out);
+    for (let i = 0; i < out; i++) {
+      const w = net.W[l][i];
+      let s = net.B[l][i];
+      for (let j = 0; j < w.length; j++) s += w[j] * a[j];
+      z[i] = s;
+    }
+    zs.push(z);
+    if (last) {
+      const m = Math.max(z[0], z[1]);
+      const e0 = Math.exp(z[0] - m), e1 = Math.exp(z[1] - m);
+      const sum = e0 + e1;
+      a = [e0 / sum, e1 / sum];
+    } else {
+      a = z.map((v) => A.f(v));
+    }
+    as.push(a);
+  }
+  return { as, zs };
+}
+
+function mlpProb(net, x, y, act) {
+  const { as } = mlpForward(net, [x, y], act);
+  return as[as.length - 1][1];
+}
+
+function mlpOptState(net, opt) {
+  const zw = () => net.W.map((m) => m.map((r) => r.map(() => 0)));
+  const zb = () => net.B.map((r) => r.map(() => 0));
+  if (opt === 'adam') return { t: 0, mw: zw(), vw: zw(), mb: zb(), vb: zb() };
+  if (opt === 'momentum') return { mw: zw(), mb: zb() };
+  return {};
+}
+
+function mlpUpdate(net, gW, gB, scale, lr, opt, st) {
+  const B1 = 0.9, B2 = 0.999, EPS = 1e-8;
+  const at = opt === 'adam' ? { c1: 1 - Math.pow(B1, st.t), c2: 1 - Math.pow(B2, st.t) } : null;
+  for (let l = 0; l < net.W.length; l++) {
+    const W = net.W[l], GW = gW[l], mw = st.mw ? st.mw[l] : null, vw = st.vw ? st.vw[l] : null;
+    for (let i = 0; i < W.length; i++) {
+      for (let j = 0; j < W[i].length; j++) {
+        const g = GW[i][j] * scale;
+        if (opt === 'adam') {
+          mw[i][j] = B1 * mw[i][j] + (1 - B1) * g;
+          vw[i][j] = B2 * vw[i][j] + (1 - B2) * g * g;
+          W[i][j] -= (lr * (mw[i][j] / at.c1)) / (Math.sqrt(vw[i][j] / at.c2) + EPS);
+        } else if (opt === 'momentum') {
+          mw[i][j] = 0.9 * mw[i][j] + g;
+          W[i][j] -= lr * mw[i][j];
+        } else {
+          W[i][j] -= lr * g;
+        }
+      }
+    }
+    const b = net.B[l], gb = gB[l], mb = st.mb ? st.mb[l] : null, vb = st.vb ? st.vb[l] : null;
+    for (let i = 0; i < b.length; i++) {
+      const g = gb[i] * scale;
+      if (opt === 'adam') {
+        mb[i] = B1 * mb[i] + (1 - B1) * g;
+        vb[i] = B2 * vb[i] + (1 - B2) * g * g;
+        b[i] -= (lr * (mb[i] / at.c1)) / (Math.sqrt(vb[i] / at.c2) + EPS);
+      } else if (opt === 'momentum') {
+        mb[i] = 0.9 * mb[i] + g;
+        b[i] -= lr * mb[i];
+      } else {
+        b[i] -= lr * g;
+      }
+    }
+  }
+}
+
+/** 一个 batch：前向 → 交叉熵 → 反向传播 → 参数更新 */
+function mlpBatch(net, batch, lr, act, opt, st) {
+  const gW = net.W.map((m) => m.map((r) => r.map(() => 0)));
+  const gB = net.B.map((r) => r.map(() => 0));
+  const A = MLP_ACT[act] || MLP_ACT.tanh;
+  let loss = 0;
+
+  for (const p of batch) {
+    const { as, zs } = mlpForward(net, [p.x, p.y], act);
+    const out = as[as.length - 1];
+    loss += -Math.log(out[p.t] + 1e-9);
+
+    let dz = [out[0] - (p.t === 0 ? 1 : 0), out[1] - (p.t === 1 ? 1 : 0)];
+    for (let l = net.W.length - 1; l >= 0; l--) {
+      const aPrev = as[l];
+      for (let i = 0; i < net.W[l].length; i++) {
+        gB[l][i] += dz[i];
+        for (let j = 0; j < aPrev.length; j++) gW[l][i][j] += dz[i] * aPrev[j];
+      }
+      if (l > 0) {
+        const rows = net.W[l].length;
+        const cols = net.W[l][0].length;
+        const dprev = new Array(cols).fill(0);
+        for (let j = 0; j < cols; j++) {
+          let s = 0;
+          for (let i = 0; i < rows; i++) s += net.W[l][i][j] * dz[i];
+          dprev[j] = s * A.d(zs[l - 1][j], as[l][j]);
+        }
+        dz = dprev;
+      }
+    }
+  }
+
+  if (opt === 'adam') st.t += 1;
+  mlpUpdate(net, gW, gB, 1 / batch.length, lr, opt, st);
+  return loss / batch.length;
+}
+
+/* ---------------------------------------------------------- 实验台实例 */
+function mlpShell(key) {
+  return `<div class="mlp-lab" data-key="${esc(key)}"></div>`;
+}
+
+function mountLabs(scope) {
+  $$('.mlp-lab[data-key]', scope).forEach((slot) => {
+    const key = slot.dataset.key;
+    let inst = MLP_LABS.get(key);
+    if (!inst) {
+      inst = createMlpLab(key);
+      MLP_LABS.set(key, inst);
+    }
+    slot.replaceWith(inst.root);
+    inst.onAttach();
+  });
+}
+
+function createMlpLab(key) {
+  const SETS = Object.keys(MLP_SETS);
+  const HIDDEN = [
+    { v: '4', label: '4 个神经元' },
+    { v: '8', label: '8 个神经元' },
+    { v: '16', label: '16 个神经元' },
+    { v: '8,8', label: '两层 × 8' },
+    { v: '16,16', label: '两层 × 16' },
+  ];
+  const OPTS = [
+    { v: 'adam', label: 'Adam' },
+    { v: 'momentum', label: 'Momentum' },
+    { v: 'sgd', label: 'SGD' },
+  ];
+  const BATCH = [
+    { v: '0', label: '全量' },
+    { v: '32', label: '批量 32' },
+    { v: '8', label: '批量 8' },
+  ];
+
+  const st = {
+    set: 'moons', hidden: '8', act: 'tanh', opt: 'adam', batch: 0, lr: 0.08,
+    net: null, optState: null, data: [], order: [], cursor: 0,
+    epoch: 0, loss: NaN, acc: NaN, hist: [],
+    running: false, raf: 0, visible: true, lastPaint: 0, patched: false,
+  };
+
+  const root = document.createElement('div');
+  root.className = 'mlp-lab';
+  root.dataset.key = key;
+  root.innerHTML = `
+    <div class="mlp-head">
+      <h4>交互实验台 · 二维多层感知机</h4>
+      <span class="mlp-state" data-r="state">已就绪</span>
+    </div>
+    <div class="mlp-grid">
+      <div class="mlp-panel">
+        <div class="mlp-label">
+          <span>决策边界</span>
+          <span class="mlp-key"><i style="background:var(--accent-3)"></i>类别 A<i style="background:var(--accent-2)"></i>类别 B</span>
+        </div>
+        <div class="mlp-frame"><canvas data-r="boundary" width="440" height="440"></canvas></div>
+      </div>
+      <div class="mlp-side">
+        <div class="mlp-controls">
+          <div class="mlp-row"><label>数据集</label><div class="mlp-seg" data-r="sets"></div></div>
+          <div class="mlp-row">
+            <label>隐藏层</label>
+            <select class="mlp-select" data-r="hidden">
+              ${HIDDEN.map((h) => `<option value="${h.v}">${h.label}</option>`).join('')}
+            </select>
+            <select class="mlp-select" data-r="act">
+              ${Object.keys(MLP_ACT).map((a) => `<option value="${a}">${MLP_ACT[a].label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mlp-row">
+            <label>优化器</label>
+            <select class="mlp-select" data-r="opt">
+              ${OPTS.map((o) => `<option value="${o.v}">${o.label}</option>`).join('')}
+            </select>
+            <select class="mlp-select" data-r="batch">
+              ${BATCH.map((b) => `<option value="${b.v}">${b.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mlp-row">
+            <label>学习率</label>
+            <input class="mlp-range" data-r="lr" type="range" min="-2.4" max="0.2" step="0.05" value="-1.1" aria-label="学习率" />
+            <span class="mlp-val" data-r="lrval">0.08</span>
+          </div>
+          <div class="mlp-btns">
+            <button class="btn primary" data-r="play" type="button">▶ 开始训练</button>
+            <button class="btn" data-r="stepBtn" type="button">单步</button>
+            <button class="btn" data-r="reset" type="button">↺ 重置</button>
+          </div>
+        </div>
+        <div class="mlp-metrics">
+          <div class="m"><span>轮次</span><b data-r="epoch">0</b></div>
+          <div class="m"><span>损失</span><b data-r="loss">–</b></div>
+          <div class="m"><span>准确率</span><b data-r="acc">–</b></div>
+          <div class="m"><span>参数量</span><b data-r="params">–</b></div>
+        </div>
+        <div class="mlp-panel">
+          <div class="mlp-label">
+            <span>训练曲线</span>
+            <span class="mlp-key"><i class="sq" style="background:var(--accent)"></i>损失<i class="sq" style="background:var(--ok)"></i>准确率</span>
+          </div>
+          <div class="mlp-frame"><canvas data-r="curve" width="440" height="150"></canvas></div>
+        </div>
+        <div class="mlp-panel">
+          <div class="mlp-label"><span>参数矩阵 · 权重</span><span class="mlp-key">紫＝负　橙＝正</span></div>
+          <div class="mlp-frame"><canvas data-r="weights" width="440" height="132"></canvas></div>
+        </div>
+      </div>
+    </div>`;
+
+  const q = (n) => root.querySelector(`[data-r="${n}"]`);
+  const elSets = q('sets'), elHidden = q('hidden'), elAct = q('act'), elOpt = q('opt'),
+    elBatch = q('batch'), elLr = q('lr'), elLrVal = q('lrval'), elPlay = q('play'),
+    elStep = q('stepBtn'), elReset = q('reset'), elState = q('state');
+
+  elSets.innerHTML = SETS.map((k) => `<button type="button" data-set="${k}">${MLP_SETS[k].label}</button>`).join('');
+  elHidden.value = st.hidden;
+  elAct.value = st.act;
+  elOpt.value = st.opt;
+  elBatch.value = String(st.batch);
+  elLr.value = String(Math.log10(st.lr));
+
+  function syncSeg() {
+    $$('button[data-set]', elSets).forEach((b) => b.classList.toggle('on', b.dataset.set === st.set));
+  }
+
+  function readLr() {
+    const exp = parseFloat(elLr.value);
+    st.lr = Math.pow(10, exp);
+    elLrVal.textContent = st.lr >= 0.1 ? st.lr.toFixed(2) : st.lr.toFixed(3);
+  }
+
+  /* ---------------- 构建 / 训练 ---------------- */
+  function build(keepData) {
+    const sizes = [2, ...st.hidden.split(',').map((n) => parseInt(n, 10)), 2];
+    st.net = mlpInitNet(sizes, st.act, 20261016);
+    st.optState = mlpOptState(st.net, st.opt);
+    st.epoch = 0;
+    st.loss = NaN;
+    st.acc = NaN;
+    st.hist = [];
+    if (!keepData || !st.data.length) st.data = MLP_SETS[st.set].make(mlpRng(7788));
+    st.order = st.data.map((_, i) => i);
+    st.cursor = 0;
+    shuffle();
+    evaluate();
+    paint(true);
+  }
+  function shuffle() {
+    const rnd = mlpRng(st.epoch * 977 + 13);
+    for (let i = st.order.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      const t = st.order[i]; st.order[i] = st.order[j]; st.order[j] = t;
+    }
+  }
+  function evaluate() {
+    let loss = 0, ok = 0;
+    for (const p of st.data) {
+      const { as } = mlpForward(st.net, [p.x, p.y], st.act);
+      const out = as[as.length - 1];
+      loss += -Math.log(out[p.t] + 1e-9);
+      if ((out[1] >= out[0] ? 1 : 0) === p.t) ok += 1;
+    }
+    st.loss = loss / st.data.length;
+    st.acc = ok / st.data.length;
+  }
+  function step() {
+    const bs = st.batch > 0 ? st.batch : st.data.length;
+    if (st.cursor >= st.order.length) { st.cursor = 0; shuffle(); }
+    const idx = st.order.slice(st.cursor, st.cursor + bs);
+    st.cursor += bs;
+    mlpBatch(st.net, idx.map((i) => st.data[i]), st.lr, st.act, st.opt, st.optState);
+    if (st.cursor >= st.order.length) {
+      st.epoch += 1;
+      evaluate();
+      st.hist.push({ e: st.epoch, l: st.loss, a: st.acc });
+      if (st.hist.length > 4000) st.hist.shift();
+      return true;
+    }
+    return false;
+  }
+
+  function loop(ts) {
+    if (!st.running) { st.raf = 0; return; }
+    if (!st.visible) { st.raf = 0; return; }
+    const budget = st.batch > 0 ? 8 : 1;
+    for (let i = 0; i < budget; i++) step();
+    if (ts - st.lastPaint > 70) { paint(); st.lastPaint = ts; }
+    st.raf = requestAnimationFrame(loop);
+  }
+  function ensureLoop() {
+    if (!st.raf && st.running && st.visible) st.raf = requestAnimationFrame(loop);
+  }
+  function setRunning(on) {
+    st.running = on;
+    elPlay.textContent = on ? '⏸ 暂停' : '▶ 开始训练';
+    elState.textContent = on ? '训练中' : '已暂停';
+    elState.classList.toggle('run', on);
+    if (on) ensureLoop(); else if (st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; }
+    paint();
+  }
+
+  /* ---------------- 绘制 ---------------- */
+  function fit(cv, W, H) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) {
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+    }
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  }
+
+  function drawBoundary() {
+    const W = 440, H = 440, G = 52, EXT = 1.25;
+    const cv = root.querySelector('[data-r="boundary"]');
+    const ctx = fit(cv, W, H);
+    const c = mlpTheme();
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = mlpRgba(c.surface, 1);
+    ctx.fillRect(0, 0, W, H);
+    if (!st.net) return;
+
+    const px = (x) => ((x + EXT) / (2 * EXT)) * W;
+    const py = (y) => H - ((y + EXT) / (2 * EXT)) * H;
+
+    // 概率热力图（低分辨率小图放大，天然平滑）
+    const img = ctx.createImageData(G, G);
+    for (let gy = 0; gy < G; gy++) {
+      for (let gx = 0; gx < G; gx++) {
+        const x = -EXT + ((gx + 0.5) / G) * 2 * EXT;
+        const y = EXT - ((gy + 0.5) / G) * 2 * EXT;
+        const p = mlpProb(st.net, x, y, st.act);
+        const col = mlpMix(c.accent3, c.accent2, p);
+        const i = (gy * G + gx) * 4;
+        img.data[i] = col.r; img.data[i + 1] = col.g; img.data[i + 2] = col.b;
+        img.data[i + 3] = Math.round(255 * (0.05 + 0.32 * Math.abs(p - 0.5) * 2));
+      }
+    }
+    const off = document.createElement('canvas');
+    off.width = G; off.height = G;
+    off.getContext('2d').putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(off, 0, 0, W, H);
+
+    // 决策边界轮廓：逐列扫描 p=0.5 的穿越点
+    const cols = 96, rows = 48;
+    ctx.strokeStyle = mlpRgba(c.text, 0.5);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (let ci = 0; ci < cols; ci++) {
+      const x = -EXT + ((ci + 0.5) / cols) * 2 * EXT;
+      let prev = mlpProb(st.net, x, EXT, st.act) - 0.5;
+      for (let ri = 1; ri < rows; ri++) {
+        const y = EXT - (ri / rows) * 2 * EXT;
+        const cur = mlpProb(st.net, x, y, st.act) - 0.5;
+        if ((prev <= 0 && cur > 0) || (prev >= 0 && cur < 0)) {
+          const t = Math.abs(prev) / (Math.abs(prev) + Math.abs(cur) || 1);
+          const yy = EXT - ((ri - 1 + t) / rows) * 2 * EXT;
+          ctx.moveTo(px(x) - 1.4, py(yy));
+          ctx.lineTo(px(x) + 1.4, py(yy));
+        }
+        prev = cur;
+      }
+    }
+    ctx.stroke();
+
+    // 坐标轴线
+    ctx.strokeStyle = mlpRgba(c.border, 0.9);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px(0), 0); ctx.lineTo(px(0), H);
+    ctx.moveTo(0, py(0)); ctx.lineTo(W, py(0));
+    ctx.stroke();
+
+    // 数据点
+    for (const p of st.data) {
+      const base = p.t === 1 ? c.accent2 : c.accent3;
+      ctx.beginPath();
+      ctx.arc(px(p.x), py(p.y), 2.9, 0, Math.PI * 2);
+      ctx.fillStyle = mlpRgba(base, 0.95);
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = mlpRgba(c.surface, 0.85);
+      ctx.stroke();
+    }
+
+    // 角标
+    ctx.fillStyle = mlpRgba(c.muted, 0.9);
+    ctx.font = '11px ui-monospace, Consolas, monospace';
+    ctx.fillText(`数据集样本 ${st.data.length}`, 10, 18);
+    ctx.fillText(`输入域 [-1.25, 1.25]²`, 10, 33);
+  }
+
+  function drawCurve() {
+    const W = 440, H = 150;
+    const cv = root.querySelector('[data-r="curve"]');
+    const ctx = fit(cv, W, H);
+    const c = mlpTheme();
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = mlpRgba(c.surface, 1);
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = { l: 36, r: 40, t: 14, b: 22 };
+    const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+
+    ctx.strokeStyle = mlpRgba(c.border, 1);
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 3; i++) {
+      const y = pad.t + (ih * i) / 3;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + iw, y); ctx.stroke();
+    }
+
+    ctx.font = '10px ui-monospace, Consolas, monospace';
+    ctx.fillStyle = mlpRgba(c.muted, 1);
+    const maxLoss = Math.max(0.7, ...st.hist.map((h) => h.l));
+    ctx.textAlign = 'right';
+    ctx.fillText(maxLoss.toFixed(1), pad.l - 6, pad.t + 8);
+    ctx.fillText('0', pad.l - 6, pad.t + ih);
+    ctx.textAlign = 'left';
+    ctx.fillText('100%', pad.l + iw + 6, pad.t + 8);
+    ctx.fillText('0%', pad.l + iw + 6, pad.t + ih);
+
+    if (st.hist.length < 2) {
+      ctx.fillStyle = mlpRgba(c.muted, 1);
+      ctx.textAlign = 'center';
+      ctx.font = '12px var(--sans)';
+      ctx.fillText('点「开始训练」，这里会画出损失与准确率随轮次的变化', W / 2, H / 2 + 4);
+      return;
+    }
+
+    const n = st.hist.length;
+    const X = (i) => pad.l + (iw * i) / (n - 1);
+
+    ctx.beginPath();
+    st.hist.forEach((h, i) => {
+      const y = pad.t + ih - (clampTo(h.l, 0, maxLoss) / maxLoss) * ih;
+      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
+    });
+    ctx.strokeStyle = mlpRgba(c.accent, 0.95);
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    ctx.beginPath();
+    st.hist.forEach((h, i) => {
+      const y = pad.t + ih - clampTo(h.a, 0, 1) * ih;
+      i ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y);
+    });
+    ctx.strokeStyle = mlpRgba(c.ok, 0.85);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = mlpRgba(c.muted, 1);
+    ctx.textAlign = 'left';
+    ctx.fillText(`第 ${st.hist[0].e} 轮`, pad.l, H - 6);
+    ctx.textAlign = 'right';
+    ctx.fillText(`第 ${st.hist[n - 1].e} 轮`, pad.l + iw, H - 6);
+  }
+
+  function drawWeights() {
+    const W = 440, H = 132;
+    const cv = root.querySelector('[data-r="weights"]');
+    const ctx = fit(cv, W, H);
+    const c = mlpTheme();
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = mlpRgba(c.surface, 1);
+    ctx.fillRect(0, 0, W, H);
+    if (!st.net) return;
+
+    const layers = st.net.W;
+    let maxAbs = 1e-6;
+    layers.forEach((m) => m.forEach((r) => r.forEach((v) => { maxAbs = Math.max(maxAbs, Math.abs(v)); })));
+
+    const cols = layers.map((m) => m[0].length);
+    const rows = layers.map((m) => m.length);
+    const totalCols = cols.reduce((a, b) => a + b, 0);
+    const maxRows = Math.max(...rows);
+    const gap = 18;
+    const availW = W - 20 - gap * (layers.length - 1);
+    const availH = H - 34;
+    const cell = Math.max(5, Math.min(availW / totalCols, availH / maxRows, 15));
+
+    let x = 10;
+    layers.forEach((mat, li) => {
+      const bw = mat[0].length * cell;
+      ctx.fillStyle = mlpRgba(c.muted, 1);
+      ctx.font = '10px ui-monospace, Consolas, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${li === 0 ? '隐藏层' : li === layers.length - 1 ? '输出层' : '隐藏层 ' + li}  ${mat[0].length}×${mat.length}`, x, 12);
+
+      for (let i = 0; i < mat.length; i++) {
+        for (let j = 0; j < mat[i].length; j++) {
+          const v = mat[i][j] / maxAbs;
+          const t = Math.abs(v);
+          const hue = v < 0 ? 262 : 24;
+          ctx.fillStyle = `hsl(${hue} 62% ${(92 - 56 * t).toFixed(1)}%)`;
+          ctx.fillRect(x + j * cell, 20 + i * cell, cell - 1.2, cell - 1.2);
+        }
+      }
+      x += bw + gap;
+    });
+
+    ctx.fillStyle = mlpRgba(c.muted, 1);
+    ctx.textAlign = 'right';
+    ctx.fillText(`|w|max = ${maxAbs.toFixed(3)}`, W - 10, 12);
+  }
+
+  function paint(force) {
+    if (!st.patched && !force) return;
+    try {
+      drawBoundary();
+      drawCurve();
+      drawWeights();
+      const params = st.net ? st.net.W.reduce((n, m, l) => n + m.length * m[0].length + st.net.B[l].length, 0) : 0;
+      q('epoch').textContent = String(st.epoch);
+      q('loss').textContent = Number.isFinite(st.loss) ? st.loss.toFixed(3) : '–';
+      q('acc').textContent = Number.isFinite(st.acc) ? (st.acc * 100).toFixed(1) + '%' : '–';
+      q('params').textContent = String(params);
+    } catch (err) {
+      console.warn('[MLP 绘制失败]', err);
+    }
+  }
+
+  /* ---------------- 事件 ---------------- */
+  elSets.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-set]');
+    if (!b) return;
+    st.set = b.dataset.set;
+    syncSeg();
+    setRunning(false);
+    build(false);
+  });
+  elHidden.addEventListener('change', () => { st.hidden = elHidden.value; setRunning(false); build(true); });
+  elAct.addEventListener('change', () => { st.act = elAct.value; setRunning(false); build(true); });
+  elOpt.addEventListener('change', () => {
+    st.opt = elOpt.value;
+    st.optState = mlpOptState(st.net, st.opt);
+  });
+  elBatch.addEventListener('change', () => { st.batch = parseInt(elBatch.value, 10) || 0; st.cursor = 0; });
+  elLr.addEventListener('input', readLr);
+  elPlay.addEventListener('click', () => setRunning(!st.running));
+  elStep.addEventListener('click', () => {
+    setRunning(false);
+    for (let i = 0; i < (st.batch > 0 ? 8 : 1); i++) step();
+    paint(true);
+  });
+  elReset.addEventListener('click', () => { setRunning(false); build(true); });
+
+  /* 主题切换重绘 */
+  const onTheme = () => paint(true);
+  const themeObs = new MutationObserver(onTheme);
+  themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  /* 离开视野就暂停绘制，回来继续 */
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      st.visible = es[0].isIntersecting;
+      if (st.visible) { paint(true); ensureLoop(); }
+    }, { threshold: 0.05 }).observe(root);
+  }
+
+  readLr();
+  syncSeg();
+  build(false);
+
+  return {
+    root,
+    onAttach() { st.patched = true; paint(true); ensureLoop(); },
+  };
+}
 /* ---------------------------------------------------------- 提示 */
 let toastTimer = null;
 function toast(msg, { action, onClick, ms = 2600 } = {}) {
@@ -1248,9 +2139,12 @@ $('#btnTheme').onclick = () =>
 /* ============================================================
    渲染：块类型 → DOM
    ============================================================ */
-function renderBlock(b) {
+function renderBlock(b, key) {
   switch (b.type) {
+    case 'mlp':
+      return mlpShell(key);
     case 'p':
+
       return `<p>${b.text ?? ''}</p>`;
     case 'ul':
       return `<ul>${(b.items || []).map((i) => `<li>${i}</li>`).join('')}</ul>`;
@@ -1295,16 +2189,20 @@ function renderTools() {
     <tbody>${rows}</tbody></table></div>`;
 }
 
-/** 渲染正文（只读：网站上不提供在线编辑入口，内容由数据源生成） */
+/** 渲染正文 */
+
 function renderSections() {
   const article = $('#doc');
   article.innerHTML = state.sections.map((sec) => {
-    const body = `${sec.summary ? `<p class="sec-summary">${sec.summary}</p>` : ''}${(sec.blocks || []).map(renderBlock).join('')}`;
+    const body = `${sec.summary ? `<p class="sec-summary">${sec.summary}</p>` : ''}${(sec.blocks || []).map((b, i) => renderBlock(b, `${sec.anchor}-${i}`)).join('')
+}`;
     return `<section class="card" id="${esc(sec.anchor)}" data-anchor="${esc(sec.anchor)}">
       <h2><span class="num">${esc(sec.num)}</span><span>${esc(sec.title)}</span></h2>${body}</section>`;
   }).join('');
+  mountLabs(article);
 
   const toc = $('#tocList');
+
   toc.innerHTML = state.sections
     .map((s) => `<li><a href="#${esc(s.anchor)}" data-target="${esc(s.anchor)}">${esc(s.title)}</a></li>`)
     .join('');
@@ -1319,7 +2217,8 @@ function renderSections() {
 /* ---------------------------------------------------------- 数据 → 页面 */
 function renderMeta() {
   const m = state.meta;
-  document.title = `${m.title || 'AI Agent 使用报告'} · ${m.author || 'pb'}（动态站）`;
+  document.title = `${m.title || 'AI Agent 使用报告'} · ${m.author || 'pb'}`;
+
   $('#brandTitle').textContent = m.title || 'AI Agent 使用报告';
   $('#brandAuthor').textContent = '· ' + (m.author || 'pb');
   $('#heroTitle').innerHTML = `${esc(m.title || 'AI Agent 使用报告').replace(/使用报告$/, '')}<em>使用报告</em>`;
@@ -1330,39 +2229,25 @@ function renderMeta() {
   $('#footLeft').textContent = `© 2026 ${m.author || 'pb'} · ${m.course || ''}课程作业 · ${m.title || 'AI Agent 使用报告'}`;
 }
 
+/* 封面一览：按实际内容统计，不依赖任何外部数据 */
 function renderStats() {
-  const s = state.stats || {};
-  const set = (id, v, animate) => {
-    const el = $(id);
-    if (!el) return;
-    const old = el.textContent;
-    el.textContent = v ?? '–';
-    const cell = el.closest('.live-cell');           // 顶部按钮不在看板里，可能是 null
-    if (animate && cell && old !== String(v) && old !== '–') {
-      cell.classList.add('bump');
-      setTimeout(() => cell.classList.remove('bump'), 220);
-    }
-  };
-  set('#lvVisits', s.visits); set('#lvToday', s.visitsToday);
-  set('#lvLikes', s.likes, true); set('#lvComments', s.comments, true); set('#lvSections', s.sections);
-  set('#likeCount', s.likes, true); set('#commentCount', s.comments, true);
-
-  /* 近 7 日柱状图（纯手绘 SVG，不引图表库；本站已去掉实时看板，这里做存在性判断） */
-  const svg = $('#visitChart');
-  if (!svg) return;
-  const data = s.last7 || [];
-  if (!data.length) { svg.innerHTML = ''; return; }
-  const max = Math.max(...data.map((d) => d.count), 1);
-  const w = 220 / data.length;
-  svg.innerHTML = data.map((d, i) => {
-    const h = Math.max(2, (d.count / max) * 46);
-    return `<rect x="${(i * w + w * 0.18).toFixed(1)}" y="${(54 - h).toFixed(1)}"
-      width="${(w * 0.64).toFixed(1)}" height="${h.toFixed(1)}" rx="2">
-      <title>${d.day}：${d.count} 次</title></rect>`;
-  }).join('');
+  const secs = state.sections || [];
+  const blocks = secs.reduce((n, s) => n + (s.blocks || []).length, 0);
+  const labs = secs.reduce((n, s) => n + (s.blocks || []).filter((b) => b.type === 'mlp').length, 0);
+  const raw = secs.map((s) => `${s.title || ''}${s.summary || ''}${JSON.stringify(s.blocks || [])}`).join('');
+  const chars = raw.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, '').length;
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  set('#ovSections', secs.length);
+  set('#ovBlocks', blocks);
+  set('#ovTools', (state.tools || []).length);
+  set('#ovLabs', labs);
+  set('#ovRead', Math.max(1, Math.round(chars / 400)));
+  set('#likeCount', (state.stats && state.stats.likes) || 0);
+  set('#commentCount', (state.comments || []).length);
 }
 
 function renderComments() {
+
   const list = $('#commentList');
   if (!state.comments.length) {
     list.innerHTML = '<p class="muted">还没有留言 —— 你可以是第一个。</p>';
@@ -1458,7 +2343,8 @@ on('#commentForm', async (e) => {
   try {
     await api('/api/comments', { method: 'POST', body: { author: $('#cmtAuthor').value.trim() || '匿名', content } });
     $('#cmtContent').value = '';
-    toast('留言已发表，正在广播给所有页面');
+    toast('留言已发表，谢谢你的反馈');
+
   } catch (err) { toast(err.message); }
 }, 'onsubmit');
 
@@ -1486,7 +2372,8 @@ on('#toTop', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 /* ---------------------------------------------------------- 启动 */
 if (STATIC) {
   const hint = $('#cmtHint');
-  if (hint) hint.textContent = '此页是静态快照版，留言只保存在你自己的浏览器里';
+  if (hint) hint.textContent = '留言会立即显示在下方，并保存在本机浏览器里';
+
 }
 loadAll().then(onScroll);
 connectSSE();
