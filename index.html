@@ -680,7 +680,8 @@ window.__REPORT_DATA__ = {
             },
             {
               "t": "交付物",
-              "d": "一个能跑起来的动态网站 + 数据库"
+              "d": "一个打开即读、含交互实验的报告网站"
+
             }
           ]
         }
@@ -739,7 +740,8 @@ window.__REPORT_DATA__ = {
             {
               "tag": "S2",
               "title": "架构设计",
-              "agent": "确定技术选型：Node.js 内置 http 模块（零依赖）+ SQLite 数据库 + REST API + SSE 实时推送；内容存库、前端渲染。",
+              "agent": "确定技术选型：结构化内容 + 单一渲染函数，最终收敛为一个零依赖、可离线打开的单文件站点。",
+
               "me": "拍板要做成「能跑的站」，不是一张长图。"
             },
             {
@@ -750,20 +752,24 @@ window.__REPORT_DATA__ = {
             },
             {
               "tag": "S4",
-              "title": "后端实现",
-              "agent": "编写数据库层（建表/种子/增删改查）、HTTP 服务（静态资源 + REST API + SSE 广播）。",
+              "title": "内容与数据层",
+
+              "agent": "搭建内容数据层（章节、内容块、工具清单，以及留言与点赞的本机存储），并与渲染管线对接。",
+
               "me": "——"
             },
             {
               "tag": "S5",
               "title": "前端实现",
-              "agent": "编写动态前端：fetch 取数渲染、留言板、点赞、访问统计图表、SSE 自动刷新。",
+              "agent": "编写前端：数据驱动渲染、留言板、点赞、本报告一览统计、深浅色主题与阅读进度。",
+
               "me": "提出风格偏好与修改意见。"
             },
             {
               "tag": "S6",
               "title": "自检与验证",
-              "agent": "启动服务、逐条调用 API 验证、用无头浏览器截图核对渲染、检查实时推送是否生效。",
+              "agent": "用无头浏览器真实渲染页面、逐块核对排版与数据、驱动交互实验跑通后再交付。",
+
               "me": "——"
             },
             {
@@ -1043,7 +1049,7 @@ window.__REPORT_DATA__ = {
           "items": [
             "<strong>把「写报告」变成「校对报告」。</strong>Agent 负责从零到八成，我专注于判断与修改。",
             "<strong>可验证的工作方式。</strong>不是收到一堆文字就用，而是让 Agent 起服务、调接口、截图核对 —— 结果可以被检验。",
-            "<strong>交付物本身可迭代。</strong>内容存在数据库里，改完立即生效，不用重建、不用重新部署。",
+            "<strong>交付物本身可迭代。</strong>正文与页面分离，改一段文字不必碰布局，结构与样式自动沿用。",
             "<strong>零依赖的工程取舍。</strong>不装 express 和 better-sqlite3，用 Node 内置模块实现，换来「谁拿到都能直接跑」。"
           ]
         },
@@ -1275,7 +1281,8 @@ async function api(path, { method = 'GET', body, token } = {}) {
 
    ============================================================ */
 const STATIC = !!window.__STATIC__;
-const LS_KEY = 'aar-static-v1';
+const LS_KEY = 'aar-local-v2';      // 本机只存留言与点赞；正文不落盘，避免旧快照覆盖新内容
+
 const snapshot = () => window.__REPORT_DATA__ || { meta: {}, sections: [], tools: [], comments: [], stats: {} };
 
 function localLoad() {
@@ -1284,11 +1291,11 @@ function localLoad() {
 function localSave() {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify({
-      meta: state.meta, sections: state.sections, tools: state.tools,
       comments: state.comments, likes: state.stats.likes || 0,
     }));
   } catch {}
 }
+
 function localReset() {
   try { localStorage.removeItem(LS_KEY); } catch {}
   const s = snapshot();
@@ -2116,6 +2123,7 @@ function createMlpLab(key) {
   };
 }
 /* ---------------------------------------------------------- 提示 */
+
 let toastTimer = null;
 function toast(msg, { action, onClick, ms = 2600 } = {}) {
   const el = $('#toast');
@@ -2272,16 +2280,19 @@ function rerender() {
 /* ---------------------------------------------------------- 拉数据 */
 async function loadAll({ silent = false } = {}) {
   if (STATIC) {
+    /* 正文、工具清单与元信息一律取自本页内嵌的最新数据；本机存储只保留留言与点赞。
+       早期版本把整份正文也缓存到本机，导致更新后仍显示旧章节、新增章节整块看不到。 */
     const saved = localLoad();
-    if (saved && saved.sections) {
-      state.meta = saved.meta || {}; state.sections = saved.sections; state.tools = saved.tools || [];
-      state.comments = saved.comments || []; state.stats = { ...(state.stats || {}), likes: saved.likes || 0 };
-    } else {
-      localReset();
-    }
+    const s = snapshot();
+    state.meta = { ...(s.meta || {}) };
+    state.sections = JSON.parse(JSON.stringify(s.sections || []));
+    state.tools = JSON.parse(JSON.stringify(s.tools || []));
+    state.comments = saved && Array.isArray(saved.comments) ? saved.comments : [];
+    state.stats = { ...(s.stats || {}), likes: (saved && saved.likes) || 0 };
     rerender();
     return;
   }
+
 
   let rep, cmt;
   try {
